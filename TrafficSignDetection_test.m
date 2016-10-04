@@ -46,12 +46,12 @@ function TrafficSignDetection_validation(input_dir, output_dir, pixel_method, wi
 
     files = ListFiles(input_dir);
     
-    for i=1:size(files,1),
+    for ii=1:size(files,1),
 
-        i
+        ii
         
         % Read file
-        im = imread(strcat(directory,'/',files(i).name));
+        im = imread(strcat(input_dir,'/',files(ii).name));
      
         % Candidate Generation (pixel) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         pixelCandidates = CandidateGenerationPixel_Color(im, pixel_method);
@@ -60,11 +60,11 @@ function TrafficSignDetection_validation(input_dir, output_dir, pixel_method, wi
         % Candidate Generation (window)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % windowCandidates = CandidateGenerationWindow_Example(im, pixelCandidates, window_method); %%'SegmentationCCL' or 'SlidingWindow'  (Needed after Week 3)
 
-	out_file1 = sprintf ('%s/test/pixelCandidates.mat',  output_dir);
-	out_file1 = sprintf ('%s/test/windowCandidates.mat', output_dir);
+        out_file1 = sprintf ('%s/test/pixelCandidates_%06d.png',  output_dir, ii);
+	    %out_file2 = sprintf ('%s/test/windowCandidates_%06d.mat', output_dir, ii);
 
-	save (out_file1, 'pixelCandidates');
-	save (out_file2, 'windowCandidates');        
+	    imwrite (pixelCandidates, out_file1);
+	    %save (out_file2, 'windowCandidates');        
     end
 end
  
