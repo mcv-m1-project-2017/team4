@@ -1,5 +1,5 @@
 % Use this script to test your submission. Do not look at the results, as they are computed with fake annotations and masks.
-% This is just to see if there's any problem with files, paths, permissions, etc.
+% This is just to see if there's any problem with files, paths, permissions, etc. *'
 
 
     addpath(genpath('.'))
@@ -15,6 +15,8 @@
     test_dir   = '/home/ihcv00/DataSetCorrected/fake_test/';  % This folder contains fake masks and text annotations. Do not change this.
     test_files = ListFiles(test_dir);
 
+    test_files_num = size(test_files,1);
+
 
     results_dir = sprintf('/home/ihcv%02d/m1-results/week%d/test', team, week );
 
@@ -25,7 +27,11 @@
     for kk=3: length(methods),
 
 	result_files = ListFiles([results_dir, '/', methods(kk).name]);
-	sprintf ('Method %s : %d files found', size(result_files,1));			      
+        result_files_num = size(result_files,1);
+
+        if result_files_num ~= test_files_num,
+	  sprintf ('Method %s : %d result files found but there are %d test files', methods(kk).name, result_files_num, test_files_num) 
+        end
 
 	for ii=1:size(result_files,1),
 
