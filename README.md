@@ -9,7 +9,7 @@ Introduction to Human and Computer Vision project
 
 * Useful resources:
   - Circle detection: circular_hough/
-  - Segmentation with UCM: segment_ucm/
+  - Segmentation with UCM: segment_ucm/   (only for linux & Mac OSX. Can not be used on Windows)
   - Color space conversion: colorspace/
   - Evaluation (Precision, recall, etc.): evaluation/ 
   - [Segmentation](https://es.mathworks.com/matlabcentral/fileexchange/52698-k-means--mean-shift-and-normalized-cut-segmentation) (Mean-shift, k-means, etc.): 
