@@ -14,6 +14,10 @@ function [overlap] = RoiOverlapping(roi01, roi02)
     % The function returns intersection/union for the two windows
 
 
+    %if length(roi01.x) == 0 || length(roi02.x) == 0,
+    %    overlap = 0;
+    %    return
+    %end
 
     % Computing the corners of each roi
     roi01x1=roi01.x; roi01x2=roi01.x+roi01.w; roi01y1=roi01.y; roi01y2=roi01.y+roi01.h; 

@@ -14,6 +14,6 @@ function [precision, sensitivity, accuracy] = PerformanceEvaluationWindow(TP, FN
     % The function returns the precision, accuracy and sensitivity
 
     precision   = TP / (TP+FP); % Q: What if i do not have TN?
-    sensitivity = TP / (TP+FN)
+    sensitivity = TP / (TP+FN);
     accuracy    = TP / (TP+FN+FP);
 end

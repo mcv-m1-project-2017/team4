@@ -4,8 +4,9 @@
     addpath(genpath('.'))
 
     teams             = [1,2,3,4,5,6,7,8];
-    week              = 1;
-    window_evaluation = 0; 
+    %teams = [3]
+    week              = 5;
+    window_evaluation = 1; 
 
 
     % Open files to store evaluation results
@@ -34,7 +35,7 @@
         for kk=3: length(methods),
 
 	    result_files = ListFiles([results_dir, '/', methods(kk).name]);
-            sprintf ('Method %s : %d files found', size(result_files,1); % This number should be the same as the number of test images			      
+            sprintf ('Method %s : %d files found', size(result_files,1)); % This number should be the same as the number of test images	 	      
 
 	    for ii=1:size(result_files,1),
 
@@ -56,9 +57,13 @@
 		if window_evaluation == 1,
 		    % Read .mat file
 		    [pathstr_r,name_r, ext_r] = fileparts(result_files(ii).name);
-		    mat_name = fullfile(results_dir, methods(kk).name, [name_r '.mat']);
+                    mat_name = fullfile(results_dir, methods(kk).name, [name_r '.mat']);
 		    clear windowCandidates
 		    load(mat_name);
+		    if size(windowCandidates,2) > 1 && size(windowCandidates,1) == 1,
+		       sprintf('Warning! (team %d): transposed window list', jj);
+		       windowCandidates = windowCandidates';
+                    end
 
 		    gt_annotations_name = fullfile(test_dir, 'gt', ['gt.' name '.txt']);
 		    windowAnnotations = LoadAnnotations(gt_annotations_name);
@@ -74,15 +79,15 @@
 	    [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity] = PerformanceEvaluationPixel(pixelTP, pixelFP, pixelFN, pixelTN);
 	    pixelF1 = 2*((pixelPrecision*pixelSensitivity)/(pixelPrecision + pixelSensitivity));
 
-            fprintf (pixFile, 'Group %02d pixel, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, pixelPrecision, pixelSensitivity, pixelF1);      
-            sprintf (         'Group %02d pixel, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, pixelPrecision, pixelSensitivity, pixelF1)      
+            fprintf (pixFile, 'Team %02d pixel, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, pixelPrecision, pixelSensitivity, pixelF1);      
+            sprintf (         'Team %02d pixel, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, pixelPrecision, pixelSensitivity, pixelF1)      
 
 	    if window_evaluation == 1,
 		[windowPrecision, windowSensitivity, windowAccuracy] = PerformanceEvaluationWindow(windowTP, windowFN, windowFP); % (Needed after Week 3)
-		windowF1 =0;
+	        windowF1 = 2*((windowPrecision*windowSensitivity)/(windowPrecision + windowSensitivity));
 
-                fprintf (winFile, 'Group %02d window, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, windowPrecision, windowSensitivity, windowF1);     
-                sprintf (         'Group %02d window, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, windowPrecision, windowSensitivity, windowF1) 
+                fprintf (winFile, 'Team %02d window, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, windowPrecision, windowSensitivity, windowF1);     
+                sprintf (         'Team %02d window, method %s : %.2f, %.2f, %.2f\n', teams(jj), methods(kk).name, windowPrecision, windowSensitivity, windowF1) 
             end
         end
     end
