@@ -7,6 +7,7 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
     nSigns = size(files,1);
     trafficSignType = cell(1,1);
     vectorFeatures = zeros(1,nDescriptors);
+    count = 1;
 
     for i=1:nSigns
         fprintf('----------------------------------------------------\n');
@@ -19,10 +20,11 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
         while (ischar(imgData))
             imgData = strsplit(imgData);
             BB = [str2double(imgData{1}) str2double(imgData{2}) str2double(imgData{3}) str2double(imgData{4})];
-            trafficSignType{i} = imgData{5};
+            trafficSignType{count} = imgData{5};
             descriptors = imageDescriptors (img, mask, BB);
-            vectorFeatures(i,:)= descriptors;
+            vectorFeatures(count,:)= descriptors;
             imgData = fgetl(fid);
+            count = count+1;
         end
         fclose(fid);
     end
