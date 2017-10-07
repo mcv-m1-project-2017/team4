@@ -23,20 +23,20 @@ function [ histograms ] = average_histograms (paths)
                         '.',
                         strsplit(image_filename, '.'){2});
     annotation_path = fullfile(fileparts(paths(i,:)), 'gt', strcat('gt.', image_name, '.txt'));
-    [windowAnnotation, signs] = LoadAnnotations(annotation_path);
+    [bb, signs] = LoadAnnotations(annotation_path);
     
     % Iterate over all the annotations of each image
-    for annotation = 1:size(windowAnnotation,1)
+    for annotation = 1:size(bb,1)
       class = map_class_to_number(signs{annotation});
       if debug
         fprintf('Processing (image_name,sign,class): %s, %d, %d\n', image_name, annotation, class)
         fflush(stdout);
       end
       limits = [
-        floor(windowAnnotation(annotation).y), 
-        ceil(windowAnnotation(annotation).y + windowAnnotation(annotation).h), 
-        floor(windowAnnotation(annotation).x), 
-        ceil(windowAnnotation(annotation).x + windowAnnotation(annotation).w)
+        floor(bb(annotation).y), 
+        ceil(bb(annotation).y + bb(annotation).h), 
+        floor(bb(annotation).x), 
+        ceil(bb(annotation).x + bb(annotation).w)
       ] + 1;   % Indexes in Octave/Matlab starts at 1 while an image starts with 0
       cropped_image = task3_crop_image(image_path, limits);
 %      cropped_image_path = fullfile(fileparts(paths(i,:)), 'cropped', strcat('crop', sprintf('%d', annotation), '_', image_filename))
@@ -49,9 +49,9 @@ function [ histograms ] = average_histograms (paths)
       
       % Normalize histogram by crop size
       norm = sum(red_hist);
-      r_tmp = red_hist/norm;       
-      g_tmp = green_hist/norm;       
-      b_tmp = blue_hist/norm;       
+      r_tmp = red_hist / norm;       
+      g_tmp = green_hist / norm;       
+      b_tmp = blue_hist / norm;       
       
       % Accumulate histograms
       histograms(class).r += r_tmp;

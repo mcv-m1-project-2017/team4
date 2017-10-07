@@ -2,7 +2,7 @@ function [ values ] = train (paths)
 % COLOUR SEGMENTATION TRAINING: Average colour histograms
   global number_of_classes
   number_of_classes = uint8('F') - uint8('A') + 1;
-  plot_histograms = true;
+  plot_histograms = false;
   
   histogram = average_histograms(paths);
 
