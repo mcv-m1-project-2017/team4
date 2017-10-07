@@ -13,15 +13,16 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
         fprintf('analysing image number  %d', i);
         imageName = files(i).name(1:end-4)
         img = imread(strcat(datasetPath, imageName,'.jpg'));
-        mask = imread(strcat(datasetPath,'mask\mask.', imageName,'.png'));
-        fid = fopen(strcat(datasetPath,'gt\gt.', imageName,'.txt'));
-        while ~(feof(fid))
-            imgData = fgetl(fid);
+        mask = imread(strcat(datasetPath,'mask/mask.', imageName,'.png'));
+        fid = fopen(strcat(datasetPath,'gt/gt.', imageName,'.txt'));
+        imgData = fgetl(fid);
+        while (ischar(imgData))
             imgData = strsplit(imgData);
             BB = [str2double(imgData{1}) str2double(imgData{2}) str2double(imgData{3}) str2double(imgData{4})];
             trafficSignType{i} = imgData{5};
             descriptors = imageDescriptors (img, mask, BB);
             vectorFeatures(i,:)= descriptors;
+            imgData = fgetl(fid);
         end
         fclose(fid);
     end
@@ -61,7 +62,7 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
     
     % obtain frequencies for each signal type on dataset
     numClasses = 6;
-    groundTruth_directory = strcat(datasetPath,'gt\');
+    groundTruth_directory = strcat(datasetPath,'gt/');
     f = dir(groundTruth_directory);
     numExamples = size(f,1);
 

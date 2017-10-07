@@ -1,1 +1,1 @@
-extractFeatures('..\..\..\Datasets\train_2017\train\');
+extractFeatures('../../../Datasets/train_2017/train/');
