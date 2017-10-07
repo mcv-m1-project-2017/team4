@@ -74,7 +74,7 @@ function [descriptors] = imageDescriptors(image, mask, boundingBox)
     width = bottomRightX-topLeftX;
     %modify mask in order to only accept values inside the BB
     BBmask = zeros (size(R));
-    BBmask(topLeftY:bottomRightY,topLeftX:bottomRightX) = 1;
+    BBmask(int32(topLeftY):int32(bottomRightY),int32(topLeftX):int32(bottomRightX)) = 1;
     mask(BBmask ==0)=0;
     maskArea = sum(mask(:));
     boundingBoxArea=height*width;
