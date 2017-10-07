@@ -42,6 +42,8 @@ function [descriptors] = imageDescriptors(image, mask, boundingBox)
     
     descriptors = zeros(18,1); 
     
+    %%modify mask inorder to avoid errors when masks are not well defined
+    mask(mask>0)=1;
 %     Apply mask to RGB image
 
     R = image(:,:,1);
@@ -70,6 +72,10 @@ function [descriptors] = imageDescriptors(image, mask, boundingBox)
 
     height = bottomRightY-topLeftY;
     width = bottomRightX-topLeftX;
+    %modify mask in order to only accept values inside the BB
+    BBmask = zeros (size(R));
+    BBmask(topLeftY:bottomRightY,topLeftX:bottomRightX) = 1;
+    mask(BBmask ==0)=0;
     maskArea = sum(mask(:));
     boundingBoxArea=height*width;
 
