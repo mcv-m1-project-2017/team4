@@ -65,7 +65,7 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
     % obtain frequencies for each signal type on dataset
     numClasses = 6;
     groundTruth_directory = strcat(datasetPath,'gt/');
-    f = dir(groundTruth_directory);
+    f = dir(strcat(groundTruth_directory,'/*.txt'));
     numExamples = size(f,1);
 
 
