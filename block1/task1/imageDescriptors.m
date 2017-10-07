@@ -42,6 +42,8 @@ function [descriptors] = imageDescriptors(image, mask, boundingBox)
     
     descriptors = zeros(18,1); 
     
+    %%modify mask inorder to avoid errors when masks are not well defined
+    mask(mask>0)=1;
 %     Apply mask to RGB image
 
     R = image(:,:,1);
