@@ -3,18 +3,17 @@ function [ histograms ] = average_histograms (paths)
   % The output structure is a list of histograms, one per class found,
   %   each of one containing 3 named fields: 'r', 'g', 'b' related to red, 
   %   green and blue channel respectively.
-  
   global dataset_path
-  disp(dataset_path);
-  debug=true;
+  global number_of_classes
+  debug = true;
  
   %% Prepare dataset for training
   % Initialize output (expected to have classes from A to F)
-  for i=1:(uint8('F')-uint8('A')+1)
+  for i = 1:number_of_classes
     histograms(i) = struct('r', 0, 'g', 0, 'b', 0);
   end
-  n_images= 0;
-  for i=1:size(paths)
+  n_images = 0;
+  for i = 1:size(paths)
     %% Read file and its annotations
     %image_path = strcat(directory,'/',files(i).name);
     %annotation_path = strcat(directory, '/gt/gt.', files(i).name(1:size(files(i).name,2)-3), 'txt');
@@ -27,7 +26,7 @@ function [ histograms ] = average_histograms (paths)
     [windowAnnotation, signs] = LoadAnnotations(annotation_path);
     
     % Iterate over all the annotations of each image
-    for annotation=1:size(windowAnnotation,1)
+    for annotation = 1:size(windowAnnotation,1)
       class = map_class_to_number(signs{annotation});
       if debug
         fprintf('Processing (image_name,sign,class): %s, %d, %d\n', image_name, annotation, class)
@@ -35,10 +34,10 @@ function [ histograms ] = average_histograms (paths)
       end
       limits = [
         floor(windowAnnotation(annotation).y), 
-        ceil(windowAnnotation(annotation).y+windowAnnotation(annotation).h), 
+        ceil(windowAnnotation(annotation).y + windowAnnotation(annotation).h), 
         floor(windowAnnotation(annotation).x), 
-        ceil(windowAnnotation(annotation).x+windowAnnotation(annotation).w)
-      ]+1;   % Indexes in Octave/Matlab starts at 1 while an image starts with 0
+        ceil(windowAnnotation(annotation).x + windowAnnotation(annotation).w)
+      ] + 1;   % Indexes in Octave/Matlab starts at 1 while an image starts with 0
       cropped_image = task3_crop_image(image_path, limits);
 %      cropped_image_path = fullfile(fileparts(paths(i,:)), 'cropped', strcat('crop', sprintf('%d', annotation), '_', image_filename))
 %      imwrite(cropped_image, cropped_image_path)
