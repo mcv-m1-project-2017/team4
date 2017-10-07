@@ -19,10 +19,10 @@ function [ r, g, b ] = extract_averages( paths )
                         strsplit(image_filename, '.'){2})
     annotation_path = fullfile(fileparts(paths(i,:)), 'gt', strcat('gt.', image_name, '.txt'))
 
-%    annotation_path = strcat(directory, '/gt/gt.', files(i).name(1:size(files(i).name,2)-3), 'txt');
+    [windowAnnotation, signs] = LoadAnnotations(annotation_path);
+    class = map_class_to_number(signs{1})
+
     %% Crop the image to get the traffic sign
-    windowAnnotation = LoadAnnotations(annotation_path);
-    
     % Iterate over all the annotations of each image
     for annotation=1:size(windowAnnotation,1)
       if debug
