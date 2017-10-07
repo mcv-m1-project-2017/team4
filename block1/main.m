@@ -30,11 +30,10 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 paths_for_training = [
   '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000948.jpg',
   '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000949.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000977.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000978.jpg',
-]
-class_names = [ 'A', 'B', 'B', 'A' ];
-values = train(paths_for_training, class_names)
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.002810.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.004782.jpg',
+];
+values = train(paths_for_training);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
