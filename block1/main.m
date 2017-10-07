@@ -1,8 +1,16 @@
+# Set path to code
 addpath(genpath('.'))
+% Set path to external code
+addpath('../:../evaluation/')
+
 if (is_octave())
   disp('Octave detected. Loading packages..')
   pkg load image # octave-command
 end  
+
+global dataset_path
+root = fileparts(fileparts(fileparts(pwd)))
+dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 
 %% Task 1: Determine the characteristics of the signals in the training set: 
 %   max and min size, form factor, filling ratio of each type of signal, 
@@ -17,8 +25,16 @@ end
 %                                                      validation_percentage)
 
 % Task 3: Color segmentation to generate a mask
-% [ values ] = train(paths_for_training)
+% [ values ] = train(paths_for_training, class_names)
 % [ paths_of_computed_masks ] = predict(paths_for_validation, values)
+paths_for_training = [
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000948.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000949.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000977.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000978.jpg',
+]
+class_names = [ 'A', 'B', 'B', 'A' ];
+values = train(paths_for_training, class_names)
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
