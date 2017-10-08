@@ -55,6 +55,9 @@ mask_paths = predict(features, paths_for_validation);
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
 %   tp, fp, fn, time_per_frame ] = evaluate(paths_for_validation, computed_maks) 
+[ pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity, pixelTP, pixelFP, pixelFN,pixelTN, time_per_frame ] = evaluateResults(paths_for_validation, masks_paths) ;
+
+
 
 % Task 5: Study the influence of luminance normalization (Optional)
 % ...
