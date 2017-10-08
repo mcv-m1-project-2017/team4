@@ -42,7 +42,6 @@ paths_for_validation = [
 ];
 
 features = train(paths_for_training);
-%disp(features(1))
 mask_paths = predict(features, paths_for_validation);
 
 % Task 4: Evaluate the segmentation using ground truth
