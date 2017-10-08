@@ -52,7 +52,6 @@ paths_for_validation = [
 
 %features = train_max(paths_for_training);
 %mask_paths = predict_max(features, paths_for_validation);
-global hhh
 features = train_gaussian(paths_for_training);
 mask_paths = predict_gaussian(features, paths_for_validation);
 
