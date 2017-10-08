@@ -1,4 +1,4 @@
-function [freqAppearanceClass, numCounts] = frequencyAppearances(groundTruth_dir,numClasses)
+function [freqAppearanceClass, numCounts] = frequencyAppearances(groundTruth_dir, numClasses)
 % COUNTCLASSAPPEARANCES Count the number of items in each class (e.g.:
 % signal type)
 %   Iterate over the Ground Truth (gt) text files to obtain the class
@@ -21,51 +21,33 @@ function [freqAppearanceClass, numCounts] = frequencyAppearances(groundTruth_dir
 
 %% Read txt files from folder and count appearances per class
 
-f = dir(groundTruth_dir);                           % List directory's contents.
+f = dir([groundTruth_dir, '/*.txt']);            % List directory's contents.
+numExamples = size(f,1);
 totalAppearances = zeros(numClasses,1);          % Allocate output vector.
-for i=1:size(f,1)
+for i=1:numExamples
     if f(i).isdir == 0                              % Check that is a txt file.
         if(strcmp(f(i).name(end-2:end), 'txt') == 1)
             fileID = fopen(f(i).name);              % Open file.
-            file_content = textscan(fileID, '%s');  % Read contents as cell array.
-            % Note {1,1} because there is only one line per file
-            lastCharacter = file_content{1,1} (end, 1);
-            % Finally convert it to a char to use strcmp and determine the
-            % class
-            signalType = strjoin(lastCharacter);    % Char as 'A', 'D',...
-            
-            % Now compare with the class labels and add appearance:
-            switch (signalType)
-                case 'A'
-                    totalAppearances(1) = totalAppearances(1) + 1;
-                case 'B'
-                    totalAppearances(2) = totalAppearances(2) + 1;
-                case 'C'
-                    totalAppearances(3) = totalAppearances(3) + 1;
-                case 'D'
-                    totalAppearances(4) = totalAppearances(4) + 1;
-                case 'E'
-                    totalAppearances(5) = totalAppearances(5) + 1;
-                case 'F'
-                    totalAppearances(6) = totalAppearances(6) + 1;
-                otherwise
-                    fprintf('Unexpected class, appearance not counted\n');
+            lineRead = fgetl(fileID);               % Read line (only content).
+            % Check if there are more lines to read:
+            while(lineRead > 0)           % there are more lines to read
+                signalType = lineRead(end);                % Get signal type.
+                indexType = signalType - 64;
+                if(indexType < 1 || indexType > numClasses)
+                    fprintf('Invalid class label (negative or out of bounds)\n');
+                    continue;
+                else
+                    totalAppearances(indexType) = totalAppearances(indexType) + 1;
+                end
+                % Try to line next line
+                lineRead = fgetl(fileID);
             end
         end
     end
-    
 end
 
 %% Compute frequency of appearance with respect to the total # of examples
-% Compute the relative frequency of appearance after checking that the nº
-% of total counts has been correctly computed.
-numExamples = size(f,1) - 2;                  % Subtract '.' and '..' folders
+% Compute the relative frequency of appearance
 numCounts = sum(totalAppearances);
-if (numExamples == numCounts)
-    freqAppearanceClass = totalAppearances./numExamples;
-else
-    fprintf('Error: the number of theoretical files/examples and the total count do not match\n');
-    fprintf('This error may have caused by some corrupted txt file with an unvalid class label\n');
-end
-
+freqAppearanceClass = totalAppearances./numCounts;
 end
