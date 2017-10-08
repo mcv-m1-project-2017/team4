@@ -14,7 +14,7 @@ global dataset_path
 root = fileparts(fileparts(fileparts(pwd)))
 dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 % The dataset folder is on the following path:
-% home/mcv04/datasets/trafficsigns/train/...
+% home/jon/mcv_repos/datasets/trafficsigns/train/...
 
 %% Task 1: Determine the characteristics of the signals in the training set: 
 %   max and min size, form factor, filling ratio of each type of signal, 
@@ -37,23 +37,28 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 % Task 3: Color segmentation to generate a mask
 % [ features ] = train(paths_for_training, class_names)
 % [ paths_of_computed_masks ] = predict(paths_for_validation, features)
+
 paths_for_training = [
-  '/home/mcv04/datasets/trafficsigns/train/00.000948.jpg',
-  '/home/mcv04/datasets/trafficsigns/train/00.000949.jpg',
-  '/home/mcv04/datasets/trafficsigns/train/01.002810.jpg',
-  '/home/mcv04/datasets/trafficsigns/train/00.004782.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000948.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000949.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.002810.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.004782.jpg',
 ];
 paths_for_validation = [
-  '/home/mcv04/datasets/trafficsigns/train/00.004815.jpg',
-  '/home/mcv04/datasets/trafficsigns/train/00.005893.jpg',
-  '/home/mcv04/datasets/trafficsigns/train/01.001340.jpg',
-  '/home/mcv04/datasets/trafficsigns/train/01.001788.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.004815.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.005893.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.001340.jpg',
+  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.001788.jpg',
 ];
-
-%features = train_max(paths_for_training);
-%mask_paths = predict_max(features, paths_for_validation);
-features = train_gaussian(paths_for_training);
-mask_paths = predict_gaussian(features, paths_for_validation);
+files =  ListFiles('/home/jon/mcv_repos/datasets/trafficsigns/train');
+for i = 1:size(files)
+  paths(i,:) = strcat('/home/jon/mcv_repos/datasets/trafficsigns/train/', files(i).name);
+end
+%paths_for_training = ListFiles('/home/jon/mcv_repos/datasets/trafficsigns/train')
+features = train_max(paths);
+mask_paths = predict_max(features, paths);
+%features = train_gaussian(paths_for_training);
+%mask_paths = predict_gaussian(features, paths_for_validation);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 

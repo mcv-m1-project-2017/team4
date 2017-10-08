@@ -5,7 +5,7 @@ function [ histograms, bins ] = average_histograms (paths)
   %   green and blue channel respectively.
   global dataset_path
   global number_of_classes
-  debug = true;
+  debug = false;
  
   %% Prepare dataset for training
   % Initialize output (expected to have classes from A to F)
@@ -34,9 +34,9 @@ function [ histograms, bins ] = average_histograms (paths)
       end
       limits = [
         floor(bb(annotation).y), 
-        ceil(bb(annotation).y + bb(annotation).h), 
+        floor(bb(annotation).y + bb(annotation).h), 
         floor(bb(annotation).x), 
-        ceil(bb(annotation).x + bb(annotation).w)
+        floor(bb(annotation).x + bb(annotation).w)
       ] + 1;   % Indexes in Octave/Matlab starts at 1 while an image starts with 0
       cropped_image = crop_image(image_path, limits);
       
