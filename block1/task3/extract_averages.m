@@ -10,8 +10,6 @@ function [ r, g, b ] = extract_averages( paths )
   n_images = 0;
   for i=1:size(paths)
     %% Read file and its annotations
-    %image_path = strcat(directory,'/',files(i).name);
-    %annotation_path = strcat(directory, '/gt/gt.', files(i).name(1:size(files(i).name,2)-3), 'txt');
     image_path = paths(i,:)
     image_filename = strsplit(image_path, '/'){end};
     image_name = strcat(strsplit(image_filename, '.'){1},
@@ -54,13 +52,13 @@ function [ r, g, b ] = extract_averages( paths )
       b_acc += b_tmp;
       n_images += 1;
       
-%      if debug
-%        disp(image_path)
-%        disp(annotation_path)
-%        imshow(cropped_image, [])
-%        plot(x, r_tmp, 'r', x, g_tmp, 'g', x, b_tmp, 'b');
-%        axis([1 256 0 1]), axis 'auto y'
-%      end
+      if debug
+        disp(image_path)
+        disp(annotation_path)
+        imshow(cropped_image, [])
+        plot(x, r_tmp, 'r', x, g_tmp, 'g', x, b_tmp, 'b');
+        axis([1 256 0 1]), axis 'auto y'
+      end
   end
 
   r = r_acc/n_images;

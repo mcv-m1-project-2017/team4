@@ -30,7 +30,6 @@ function [ histograms, bins ] = average_histograms (paths)
       class = map_class_to_number(signs{annotation});
       if debug
         fprintf('Processing (image_name,sign,class): %s, %d, %d\n', image_name, annotation, class)
-%         fflush(stdout);
       end
       limits = [
         floor(bb(annotation).y), 
@@ -62,13 +61,13 @@ function [ histograms, bins ] = average_histograms (paths)
       histograms(class).b = histograms(class).b + b_tmp;
       n_images = n_images + 1;
       
-%      if debug
-%        disp(image_path)
-%        disp(annotation_path)
-%        imshow(cropped_image, [])
-%        plot(x, r_tmp, 'r', x, g_tmp, 'g', x, b_tmp, 'b');
-%        axis([1 256 0 1]), axis 'auto y'
-%      end
+      if debug
+        disp(image_path)
+        disp(annotation_path)
+        imshow(cropped_image, [])
+        plot(x, r_tmp, 'r', x, g_tmp, 'g', x, b_tmp, 'b');
+        axis([1 256 0 1]), axis 'auto y'
+      end
   end
   histograms(class).r = histograms(class).r / n_images;
   histograms(class).g = histograms(class).g / n_images;
