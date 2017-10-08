@@ -1,5 +1,5 @@
 addpath(genpath('../../../'));
-imgPath = '../../../Datasets/train_2017/train/00.001464.jpg';%'00.004817.jpg';
+imgPath = '../../../Datasets/train_2017/train/00.001465.jpg';%'00.004817.jpg';
 I = imread(imgPath);
 
 % Test results with different thresholds
@@ -7,8 +7,6 @@ lowerBound = 0.97; upperBound = 1;              % Note, if thr = 1 the
                                                 % image is left unchanged.
 ovrExpThr = linspace(lowerBound, upperBound, 8);
 recOperation = '/';
-figure, imshow(imread(imgPath),[]);
-title('Original over-exposed image');
 
 %% Tests in RGB, HSV and YCbCr colorspaces (other parameters left unchanged)
 
@@ -28,16 +26,12 @@ for i = 1:length(ovrExpThr)
     title(str);
 end
 
-% Test results with different thresholds
-lowerBound = 0.97; upperBound = 1;              % Note, if thr = 1 the
-                                                % image is left unchanged.
-ovrExpThr = linspace(lowerBound, upperBound, 8);
 
 % HSV tests and results
 colorSpace = 'HSV';
 
 figure('Name', 'HSV reconstructed');
-fprint('\n\n');
+fprintf('\n\n');
 fprintf('Starting HSV example...\n');
 
 for i = 1:length(ovrExpThr)
@@ -50,10 +44,6 @@ for i = 1:length(ovrExpThr)
     title(str);
 end
 
-% Test results with different thresholds
-lowerBound = 0.97; upperBound = 1;              % Note, if thr = 1 the
-                                                % image is left unchanged.
-ovrExpThr = linspace(lowerBound, upperBound, 8);
 
 % YCbCr tests and results
 
@@ -64,7 +54,7 @@ ovrExpThr = linspace(lowerBound, upperBound, 8);
 colorSpace = 'YCbCr';
 
 figure('Name', 'YCbCr reconstructed');
-fprint('\n\n');
+fprintf('\n\n');
 fprintf('Starting YCbCr example...\n');
 
 for i = 1:length(ovrExpThr)
@@ -76,3 +66,5 @@ for i = 1:length(ovrExpThr)
     str = sprintf(format_str, ovrExpThr(i));
     title(str);
 end
+
+figure, imshow(I, []); title('Original Image (Highlights))');

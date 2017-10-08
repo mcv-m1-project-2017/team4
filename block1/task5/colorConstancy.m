@@ -9,7 +9,8 @@ function [outImg] = colorConstancy(inputImg, method, varargin)
 %
 %       -method:                        color constancy algorithm used,
 %                                       options are: 'WhitePatch', 
-%                                       'ModifiedWhitePatch' or 'GreyWorld'
+%                                       'ModifiedWhitePatch' or
+%                                       'GreyWorld', 'Y histogram'
 %
 %       -varargin:                      only used to input new threshold
 %                                       'ModifiedWhitePatch'.
@@ -59,6 +60,9 @@ switch(method)
         outImg(:,:,2) = const_G * double(inputImg(:,:,2));
         outImg(:,:,3) = const_B * double(inputImg(:,:,3));
         outImg = uint8(outImg);
+        
+    case 'Y histogram'
+        
         
     otherwise
         fprintf('Unknown method, valid inputs are: ''WhitePatch'', ''ModifiedWhitePatch'' or ''GreyWorld''\n');

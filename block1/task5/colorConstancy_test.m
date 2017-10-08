@@ -1,7 +1,7 @@
 %% Test for colorConstancy.m
 
 addpath(genpath('../../../'));
-imgPath = '../../../Datasets/train_2017/train/00.001464.jpg';
+imgPath = '../../../Datasets/train_2017/train/00.001465.jpg';
 I = imread(imgPath);
 WP_thr = 200;
 outWP = colorConstancy(I, 'WhitePatch');
