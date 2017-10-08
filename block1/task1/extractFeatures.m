@@ -1,4 +1,4 @@
-function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeatures(datasetPath)
+function [ freqAppearanceClass,trafficSignType, vectorFeatures, maxMinResults] = extractFeatures(datasetPath)
 
     %%evaluate all images and obtain all characteristics for every signal
     nDescriptors = 18;
@@ -28,9 +28,9 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
         end
         fclose(fid);
     end
-
+    
     %represent all characteristics on histograms grouped by signal type
-    [nImages nChars] = size(vectorFeatures)
+    [nImages nChars] = size(vectorFeatures);
     group = zeros(nImages,1);
     for i = 1:nImages
         if strcmp(trafficSignType{i},'A')==1
@@ -50,17 +50,45 @@ function [ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeature
     end
 
     for i=1:nChars
-        figure()
-        data = vectorFeatures(:,i);
-        histogram(data(group ==1));
-        hold on;
-        histogram(data(group ==2));
-        histogram(data(group ==3));
-        histogram(data(group ==4));
-        histogram(data(group ==5));
-        histogram(data(group ==6));
+        if (i == 15|| i == 16 || i ==18)
+            if (i==15)
+                counts = linspace(0.5,2.5,10);
+            elseif (i==16)
+                counts = linspace(0,60000,10);
+            elseif (i ==18)
+                counts = linspace(0.4,1,20);
+            end
+            figure()
+            data = vectorFeatures(:,i);
+            histogram(data(group ==1),counts);
+            hold on;
+            histogram(data(group ==2),counts);
+            histogram(data(group ==3),counts);
+            histogram(data(group ==4),counts);
+            histogram(data(group ==5),counts);
+            histogram(data(group ==6),counts);
+        end
     end
     
+    %Compute max and min of size, form factor and filling ratio for every signal type
+    % the results are stored in a 6*6 matrix where the columns are maxSize,
+    % minSize, minFormFactor, maxFormFactor, minFillingRatio, maxFillingRatio the
+    %columns are the signal group (A,B,C,D,E,F)
+    
+    maxMinResults = zeros(6);
+    
+    for i = 1:6
+        
+        maxMinResults(1,i) = max(vectorFeatures(group == i,16))/1000;
+        maxMinResults(2,i) = min(vectorFeatures(group == i,16))/1000;
+        maxMinResults(3,i) = max(vectorFeatures(group == i,15));
+        maxMinResults(4,i) = min(vectorFeatures(group == i,15));
+        maxMinResults(5,i) = max(vectorFeatures(group == i,18));
+        maxMinResults(6,i) = min(vectorFeatures(group == i,18));
+    end
+    fprintf('----------------------------------------------------\n');
+    fprintf('Maximum and minimum values of size, form factor and filling ratio grouped:');
+    maxMinResults
     
     % obtain frequencies for each signal type on dataset
     numClasses = 6;
