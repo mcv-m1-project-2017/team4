@@ -15,13 +15,13 @@ function [ histograms, bins ] = average_histograms (paths)
   n_images = 0;
   for i = 1:size(paths)
     %% Read file and its annotations
-    %image_path = strcat(directory,'/',files(i).name);
-    %annotation_path = strcat(directory, '/gt/gt.', files(i).name(1:size(files(i).name,2)-3), 'txt');
+    %image_path = strcat(directory,'/',files(i).name); (i).name,2)-3), 'txt');
     image_path = paths(i,:);
-    image_filename = strsplit(image_path, '/'){end};
-    image_name = strcat(strsplit(image_filename, '.'){1},
-                        '.',
-                        strsplit(image_filename, '.'){2});
+    image_filename = strsplit(image_path, '/');
+    image_filename = image_filename{end};
+    part1 = strsplit(image_filename, '.');
+    part2 = strsplit(image_filename, '.');
+    image_name = strcat(part1{1}, '.', part2{2});
     annotation_path = fullfile(fileparts(paths(i,:)), 'gt', strcat('gt.', image_name, '.txt'));
     [bb, signs] = LoadAnnotations(annotation_path);
     
@@ -30,7 +30,7 @@ function [ histograms, bins ] = average_histograms (paths)
       class = map_class_to_number(signs{annotation});
       if debug
         fprintf('Processing (image_name,sign,class): %s, %d, %d\n', image_name, annotation, class)
-        fflush(stdout);
+%         fflush(stdout);
       end
       limits = [
         floor(bb(annotation).y), 
@@ -57,10 +57,10 @@ function [ histograms, bins ] = average_histograms (paths)
       b_tmp = blue_hist / norm;       
       
       % Accumulate histograms
-      histograms(class).r += r_tmp;
-      histograms(class).g += g_tmp;
-      histograms(class).b += b_tmp;
-      n_images += 1;
+      histograms(class).r = histograms(class).r + r_tmp;
+      histograms(class).g = histograms(class).g + g_tmp;
+      histograms(class).b = histograms(class).b + b_tmp;
+      n_images = n_images + 1;
       
 %      if debug
 %        disp(image_path)
@@ -70,8 +70,8 @@ function [ histograms, bins ] = average_histograms (paths)
 %        axis([1 256 0 1]), axis 'auto y'
 %      end
   end
-  histograms(class).r /= n_images;
-  histograms(class).g /= n_images;
-  histograms(class).b /= n_images;
+  histograms(class).r = histograms(class).r / n_images;
+  histograms(class).g = histograms(class).g / n_images;
+  histograms(class).b = histograms(class).r / n_images;
   
 end

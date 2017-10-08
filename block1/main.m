@@ -38,16 +38,16 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 % [ features ] = train(paths_for_training, class_names)
 % [ paths_of_computed_masks ] = predict(paths_for_validation, features)
 paths_for_training = [
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000948.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.000949.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.002810.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.004782.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/00.000948.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/00.000949.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/01.002810.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/00.004782.jpg',
 ];
 paths_for_validation = [
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.004815.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/00.005893.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.001340.jpg',
-  '/home/jon/mcv_repos/datasets/trafficsigns/train/01.001788.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/00.004815.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/00.005893.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/01.001340.jpg',
+  '/home/mcv04/datasets/trafficsigns/train/01.001788.jpg',
 ];
 
 %features = train_max(paths_for_training);

@@ -10,10 +10,10 @@ function [ paths_of_computed_masks ] = predict_gaussian(features, paths)
   
   for i=1:size(paths)
     image_path = paths(i,:);
-    image_filename = strsplit(image_path, '/'){end};
-    image_name = strcat(strsplit(image_filename, '.'){1},
-                        '.',
-                        strsplit(image_filename, '.'){2});
+    tmp = strsplit(image_path, '/');
+    image_filename = tmp{end};
+    tmp = strsplit(image_filename, '.');
+    image_name = strcat(tmp{1},'.',tmp{2});
     image = imread(image_path);
     mask = compute_mask_using_gaussian (image, features, 25);
     
