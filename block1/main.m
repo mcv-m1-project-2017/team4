@@ -50,9 +50,11 @@ paths_for_validation = [
   '/home/mcv04/datasets/trafficsigns/train/01.001788.jpg',
 ];
 
+% Uncoment next two lines to use 'MAX' algorithm.
 %features = train_max(paths_for_training);
 %mask_paths = predict_max(features, paths_for_validation);
-global hhh
+
+% Uncoment next two lines to use 'GAUSSIAN' algorithm.
 features = train_gaussian(paths_for_training);
 mask_paths = predict_gaussian(features, paths_for_validation);
 
