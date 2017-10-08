@@ -48,8 +48,11 @@ paths_for_validation = [
   '/home/jon/mcv_repos/datasets/trafficsigns/train/01.001788.jpg',
 ];
 
-features = train(paths_for_training);
-mask_paths = predict_max(features, paths_for_validation);
+%features = train_max(paths_for_training);
+%mask_paths = predict_max(features, paths_for_validation);
+
+features = train_gaussian(paths_for_training);
+mask_paths = predict_gaussian(features, paths_for_validation);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
