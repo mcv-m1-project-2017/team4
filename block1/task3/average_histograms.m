@@ -1,4 +1,4 @@
-function [ histograms ] = average_histograms (paths)
+function [ histograms, bins ] = average_histograms (paths)
   % AVERAGE HISTOGRAMS Computes an average of colour histograms 
   % The output structure is a list of histograms, one per class found,
   %   each of one containing 3 named fields: 'r', 'g', 'b' related to red, 
@@ -38,14 +38,17 @@ function [ histograms ] = average_histograms (paths)
         floor(bb(annotation).x), 
         ceil(bb(annotation).x + bb(annotation).w)
       ] + 1;   % Indexes in Octave/Matlab starts at 1 while an image starts with 0
-      cropped_image = task3_crop_image(image_path, limits);
+      cropped_image = crop_image(image_path, limits);
+      
+      % Uncomment the next two lines to save the cropped image
 %      cropped_image_path = fullfile(fileparts(paths(i,:)), 'cropped', strcat('crop', sprintf('%d', annotation), '_', image_filename))
 %      imwrite(cropped_image, cropped_image_path)
 
       % Get histograms
-      [red_hist x] = imhist(cropped_image(:,:,1));
-      green_hist = imhist(cropped_image(:,:,2));  
-      blue_hist = imhist(cropped_image(:,:,3)); 
+      n_bins = 16;
+      [red_hist bins] = imhist(cropped_image(:,:,1), n_bins);
+      green_hist = imhist(cropped_image(:,:,2), n_bins);  
+      blue_hist = imhist(cropped_image(:,:,3), n_bins); 
       
       % Normalize histogram by crop size
       norm = sum(red_hist);
@@ -70,5 +73,5 @@ function [ histograms ] = average_histograms (paths)
   histograms(class).r /= n_images;
   histograms(class).g /= n_images;
   histograms(class).b /= n_images;
-        
+  
 end
