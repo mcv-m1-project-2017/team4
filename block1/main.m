@@ -1,4 +1,4 @@
-cd% Set path to code
+% Set path to code
 addpath(genpath('.'))
 % Set path to external code
 addpath('../:../evaluation/')
@@ -20,9 +20,9 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 %   Group the signals according to their shape and color.
 % [ traffic_sign_type, vector_of_features] = extract_features(dataset_path)
 %[ freqAppearanceClass,trafficSignType, vectorFeatures, maxMinResults] = extractFeatures(strcat(dataset_path, '/train/'))
-addpath(genpath(dataset_path));
-[ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeatures(strcat(dataset_path,'/train/'));
-close all
+%addpath(genpath(dataset_path));
+%[ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeatures(strcat(dataset_path,'/train/'));
+%close all
 
 % Task 2: Create balanced train/validation split using provided dataset.
 % [ paths_for_training, paths_for_validation ] = split(dataset_path, 
@@ -30,7 +30,7 @@ close all
 %                                                      vector_of_features, 
 %                                                      validation_percentage)
 %[ paths_for_training, paths_for_validation ] = partition(dataset_path, traffic_sign_type, vector_of_features,  validation_percentage)
-partition(fullfile(dataset_path, 'train'), freqAppearanceClass, fullfile(dataset_path, 't'), fullfile(dataset_path, 'v'))
+%partition(fullfile(dataset_path, 'train'), freqAppearanceClass, fullfile(dataset_path, 't'), fullfile(dataset_path, 'v'))
 
 % Task 3: Color segmentation to generate a mask
 % [ features ] = train(paths_for_training, class_names)
@@ -48,9 +48,11 @@ paths_for_validation = [
   '/home/jon/mcv_repos/datasets/trafficsigns/train/01.001788.jpg',
 ];
 
-features = train(paths_for_training);
-%disp(features(1))
-mask_paths = predict(features, paths_for_validation);
+%features = train_max(paths_for_training);
+%mask_paths = predict_max(features, paths_for_validation);
+
+features = train_gaussian(paths_for_training);
+mask_paths = predict_gaussian(features, paths_for_validation);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
@@ -61,6 +63,7 @@ mask_paths = predict(features, paths_for_validation);
 
 % Task 5: Study the influence of luminance normalization (Optional)
 % ...
+<<<<<<< HEAD
 
 
 
@@ -108,3 +111,5 @@ crop= [  36  36  34  33  37  33  32  33  35  29  26  32  42  37  39  46  51  52 
   70  71  71  72  73  72  69  66  64  63  59  53  47  37  39  40  38  44  56  60  59  62  60  59  59  57  51  41  36  26  21  20  24  32  37  35  31  35  34  33  31  32
   70  71  70  70  70  69  67  64  64  66  63  58  52  32  35  38  36  39  46  50  50  44  42  41  43  45  46  42  39  36  29  23  23  30  34  35  33  25  24  28  38  41
   71  71  69  68  67  68  66  64  65  69  68  64  57  52  55  55  48  43  41  38  34  35  31  26  28  35  43  50  52  42  33  24  21  27  34  37  39  48  41  41  53  59];
+=======
+>>>>>>> c79b95810e66c9353ab5a016b9c654d41c57ab74

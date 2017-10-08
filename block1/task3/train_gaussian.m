@@ -1,5 +1,7 @@
-function [ features ] = train (paths) 
-% COLOUR SEGMENTATION TRAINING: Average colour histograms
+function [ features ] = train_gaussian (paths) 
+  % TRAIN GAUSSIAN: Average colour histograms and compute a gaussian function 
+  %   over it.
+  
   global number_of_classes
   number_of_classes = uint8('F') - uint8('A') + 1;
   plot_histograms = false;
