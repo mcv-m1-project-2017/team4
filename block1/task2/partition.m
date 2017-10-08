@@ -28,9 +28,13 @@ function partition(path, frequencies, train_path, validation_path)
     category_list = sign_list(sign_list(:,1) == hex2dec(category), :);
     category_list(:,1) = [];
 
-    [repeated_images, a, b] = intersect(validation_split, category_list, 'rows');
-    category_list = setdiff(category_list,repeated_images,'rows');
-    
+    if ~isempty(validation_split)
+        [repeated_images, a, b] = intersect(validation_split, category_list, 'rows');
+        category_list = setdiff(category_list,repeated_images,'rows');
+    else
+        repeated_images = [];
+    end
+
     rows = randperm(length(category_list), freq_in_validation(i) - length(repeated_images));
     
     validation_split = [validation_split; category_list(rows,:)];
@@ -41,8 +45,12 @@ function partition(path, frequencies, train_path, validation_path)
   sign_list(:,1) = [];
   train_split = setdiff(unique(sign_list, 'rows'), validation_split,'rows');
     
-  rmdir(train_path);
-  rmdir(validation_path);
+  if exist(train_path)
+    rmdir(train_path);
+  end
+  if exist(validation_path)
+    rmdir(validation_path);
+  end
   
   mkdir(train_path);
   train_path_gt = strcat(train_path, '/gt');
