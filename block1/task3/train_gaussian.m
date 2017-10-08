@@ -21,8 +21,6 @@ function [ features ] = train_gaussian (paths)
     end
   end
   
-  global hhh
-  hhh =  histogram(1);
   % Extract representatives features for each class
   for i = 1:number_of_classes
     fake_data = reconstruct_data(histogram(i).r, bins);
