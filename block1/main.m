@@ -1,4 +1,4 @@
-# Set path to code
+cd% Set path to code
 addpath(genpath('.'))
 % Set path to external code
 addpath('../:../evaluation/')
@@ -11,18 +11,26 @@ end
 global dataset_path
 root = fileparts(fileparts(fileparts(pwd)))
 dataset_path = fullfile(root, 'datasets', 'trafficsigns')
+% The dataset folder is on the following path:
+% home/mcv04/datasets/trafficsigns/train/...
 
 %% Task 1: Determine the characteristics of the signals in the training set: 
 %   max and min size, form factor, filling ratio of each type of signal, 
 %   frequency of appearance (using text annotations and ground-truth masks). 
 %   Group the signals according to their shape and color.
 % [ traffic_sign_type, vector_of_features] = extract_features(dataset_path)
+%[ freqAppearanceClass,trafficSignType, vectorFeatures, maxMinResults] = extractFeatures(strcat(dataset_path, '/train/'))
+addpath(genpath(dataset_path));
+[ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeatures(strcat(dataset_path,'/train/'));
+close all
 
 % Task 2: Create balanced train/validation split using provided dataset.
 % [ paths_for_training, paths_for_validation ] = split(dataset_path, 
 %                                                      traffic_sign_type, 
 %                                                      vector_of_features, 
 %                                                      validation_percentage)
+%[ paths_for_training, paths_for_validation ] = partition(dataset_path, traffic_sign_type, vector_of_features,  validation_percentage)
+partition(fullfile(dataset_path, 'train'), freqAppearanceClass, fullfile(dataset_path, 't'), fullfile(dataset_path, 'v'))
 
 % Task 3: Color segmentation to generate a mask
 % [ features ] = train(paths_for_training, class_names)
