@@ -1,6 +1,8 @@
-function [ paths_of_computed_masks ] = predict(features, paths)
-  % PREDICT: Given an average colour histograms predict a segmentation and save 
-  %  it as a mask in a PNG format.
+function [ paths_of_computed_masks ] = predict_max(features, paths)
+  % PREDICT MAX: Given an average colour histograms predict a segmentation and save 
+  %  it as a mask in a PNG format. Uses features which contains the peaks of 
+  %  each 3-channel colour histogram.
+  
   global number_of_classes
   show_masks = false;
   output_folder = fullfile(fileparts(fileparts(paths(1,:))), 'validation', 'mask');

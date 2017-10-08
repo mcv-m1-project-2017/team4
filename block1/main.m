@@ -1,4 +1,4 @@
-cd% Set path to code
+% Set path to code
 addpath(genpath('.'))
 % Set path to external code
 addpath('../:../evaluation/')
@@ -20,9 +20,9 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 %   Group the signals according to their shape and color.
 % [ traffic_sign_type, vector_of_features] = extract_features(dataset_path)
 %[ freqAppearanceClass,trafficSignType, vectorFeatures, maxMinResults] = extractFeatures(strcat(dataset_path, '/train/'))
-addpath(genpath(dataset_path));
-[ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeatures(strcat(dataset_path,'/train/'));
-close all
+%addpath(genpath(dataset_path));
+%[ freqAppearanceClass,trafficSignType, vectorFeatures] = extractFeatures(strcat(dataset_path,'/train/'));
+%close all
 
 % Task 2: Create balanced train/validation split using provided dataset.
 % [ paths_for_training, paths_for_validation ] = split(dataset_path, 
@@ -30,7 +30,7 @@ close all
 %                                                      vector_of_features, 
 %                                                      validation_percentage)
 %[ paths_for_training, paths_for_validation ] = partition(dataset_path, traffic_sign_type, vector_of_features,  validation_percentage)
-partition(fullfile(dataset_path, 'train'), freqAppearanceClass, fullfile(dataset_path, 't'), fullfile(dataset_path, 'v'))
+%partition(fullfile(dataset_path, 'train'), freqAppearanceClass, fullfile(dataset_path, 't'), fullfile(dataset_path, 'v'))
 
 % Task 3: Color segmentation to generate a mask
 % [ features ] = train(paths_for_training, class_names)
@@ -49,7 +49,7 @@ paths_for_validation = [
 ];
 
 features = train(paths_for_training);
-mask_paths = predict(features, paths_for_validation);
+mask_paths = predict_max(features, paths_for_validation);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 

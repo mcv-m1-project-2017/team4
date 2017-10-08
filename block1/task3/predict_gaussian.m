@@ -1,6 +1,9 @@
 function [ paths_of_computed_masks ] = predict_gaussian(features, paths)
-  % PREDICT: Given an average colour histograms predict a segmentation and save 
-  %  it as a mask in a PNG format.
+  % PREDICT GAUSSIAN: Given an average colour histograms predict a segmentation 
+  %   and save it as a mask in a PNG format. Uses features which contains the 
+  %   average and standard deviation of the maximum of each 3-channel colour 
+  %   histogram.
+  
   global number_of_classes
   show_masks = false;
   output_folder = fullfile(fileparts(fileparts(paths(1,:))), 'validation', 'mask');
