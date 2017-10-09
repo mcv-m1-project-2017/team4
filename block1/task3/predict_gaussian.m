@@ -6,7 +6,7 @@ function [ paths_of_computed_masks ] = predict_gaussian(features, paths)
   
   global number_of_classes
   show_masks = false;
-  output_folder = fullfile(fileparts(fileparts(paths(1,:))), 'validation', 'mask');
+  output_folder = fullfile(fileparts(paths(1,:)), 'mask');
   
   for i=1:size(paths)
     image_path = paths(i,:);
