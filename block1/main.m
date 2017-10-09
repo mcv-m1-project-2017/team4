@@ -45,19 +45,20 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 %  validation_paths(i,:) = fullfile(dataset_path, 'validation', files(i).name);  %strcat(fullfile(dataset_path, 'validation'), '/' files(i).name);
 %end
 
-files = ListFiles(fullfile(dataset_path, 'test'));
-for i = 1:size(files)
-  test_paths(i,:) = fullfile(dataset_path, 'test', files(i).name);  %strcat(fullfile(dataset_path, 'validation'), '/' files(i).name);
-end
+%files = ListFiles(fullfile(dataset_path, 'test'));
+%for i = 1:size(files)
+%  test_paths(i,:) = fullfile(dataset_path, 'test', files(i).name);  %strcat(fullfile(dataset_path, 'validation'), '/' files(i).name);
+%end
 
 % Use 'MAX' algorithm
 %features = train_max(train_paths);
 %mask_paths = predict_max(features, validation_paths);
-mask_paths = predict_max(features, test_paths);
+%mask_paths = predict_max(features, test_paths);
 
 % Use 'GAUSSIAN' algorithm
-%features = train_gaussian(paths_for_training);
-%mask_paths = predict_gaussian(features, paths_for_validation);
+features = train_gaussian(train_paths);
+%mask_paths = predict_gaussian(features, validation_paths);
+%mask_paths = predict_gaussian(features, test_paths);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
