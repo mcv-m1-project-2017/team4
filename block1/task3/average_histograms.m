@@ -42,7 +42,7 @@ function [ histograms, bins ] = average_histograms (paths)
 %      imwrite(cropped_image, cropped_image_path)
 
       % Get histograms
-      n_bins = 16;
+      n_bins = 256;
       [red_hist bins] = imhist(cropped_image(:,:,1), n_bins);
       green_hist = imhist(cropped_image(:,:,2), n_bins);  
       blue_hist = imhist(cropped_image(:,:,3), n_bins); 
@@ -69,6 +69,6 @@ function [ histograms, bins ] = average_histograms (paths)
   end
   histograms(class).r = histograms(class).r / n_images;
   histograms(class).g = histograms(class).g / n_images;
-  histograms(class).b = histograms(class).r / n_images;
+  histograms(class).b = histograms(class).b / n_images;
   
 end

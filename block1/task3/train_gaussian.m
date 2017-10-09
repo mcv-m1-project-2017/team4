@@ -23,16 +23,20 @@ function [ features ] = train_gaussian (paths)
   
   % Extract representatives features for each class
   features = struct('r', [], 'g', [], 'b', []);
+
   for i = 1:number_of_classes
     fake_data = reconstruct_data(histogram(i).r, bins);
     [ r_mu, r_sigma ] = normfit(fake_data);
+
     fake_data = reconstruct_data(histogram(i).g, bins);
     [ g_mu, g_sigma ] = normfit(fake_data);
+
     fake_data = reconstruct_data(histogram(i).b, bins);
     [ b_mu, b_sigma ] = normfit(fake_data);
+
     features(i) = struct('r', [r_mu r_sigma], ...
-                         'g', [g_mu g_sigma], ...
-                         'b', [b_mu b_sigma]);
+			 'g', [g_mu g_sigma], ...
+			 'b', [b_mu b_sigma]);
     
   end
 end
