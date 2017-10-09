@@ -44,9 +44,16 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 %for i = 1:size(files)
 %  validation_paths(i,:) = fullfile(dataset_path, 'validation', files(i).name);  %strcat(fullfile(dataset_path, 'validation'), '/' files(i).name);
 %end
+
+files = ListFiles(fullfile(dataset_path, 'test'));
+for i = 1:size(files)
+  test_paths(i,:) = fullfile(dataset_path, 'test', files(i).name);  %strcat(fullfile(dataset_path, 'validation'), '/' files(i).name);
+end
+
 % Use 'MAX' algorithm
 %features = train_max(train_paths);
 %mask_paths = predict_max(features, validation_paths);
+mask_paths = predict_max(features, test_paths);
 
 % Use 'GAUSSIAN' algorithm
 %features = train_gaussian(paths_for_training);
@@ -55,7 +62,7 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 
 %   tp, fp, fn, time_per_frame ] = evaluate(paths_for_validation, computed_maks) 
-[ pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity, pixelTP, pixelFP, pixelFN,pixelTN, time_per_frame ] = evaluateResults(validation_paths, mask_paths) ;
+%[ pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity, pixelTP, pixelFP, pixelFN,pixelTN, time_per_frame ] = evaluateResults(validation_paths, mask_paths) ;
 
 % Task 5: Study the influence of luminance normalization (Optional)
 % ...

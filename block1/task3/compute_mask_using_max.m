@@ -5,7 +5,6 @@ function [ mask ] = compute_mask_using_max (image, features, threshold)
   
   % Iterate over all classes (equal to the number of features)
   for class=1:size(features, 2)
-    threshold = 25;
     red_mask = (image(:,:,1) > features(class).r - threshold) & ...
                (image(:,:,1) < features(class).r + threshold);
     green_mask = (image(:,:,2) > features(class).g - threshold) & ...
