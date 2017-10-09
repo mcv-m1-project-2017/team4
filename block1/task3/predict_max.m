@@ -14,15 +14,15 @@ function [ paths_of_computed_masks ] = predict_max(features, paths)
     tmp = strsplit(image_filename, '.');
     image_name = strcat(tmp{1},'.',tmp{2});
     image = imread(image_path);
-    mask = compute_mask_using_max (image, features, 25);
+    maska = compute_mask_using_max (image, features, 25);
     
     if show_masks
-      imshow(mask, [0, 1])
+      imshow(maska, [0, 1])
       pause(3)
     end
     output_file = fullfile(output_folder, strcat('mask.', image_name, '.png'));
     fprintf('Saving mask %s to file %s\n', image_name, output_file);
-    imwrite(mask, output_file, 'PNG');
+    imwrite(maska, output_file, 'PNG');
     paths_of_computed_masks(i, :) = strcat(output_file);
   end
 end

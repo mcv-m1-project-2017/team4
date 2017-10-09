@@ -12,6 +12,6 @@ function [ mask ] = compute_mask_using_max (image, features, threshold)
                  (image(:,:,2) < features(class).g + threshold);
     blue_mask = (image(:,:,3) > features(class).b - threshold) & ...
                 (image(:,:,3) < features(class).b + threshold);
-    mask |= red_mask & green_mask & blue_mask;
+    mask = mask | (red_mask & green_mask & blue_mask);
   end
 end
