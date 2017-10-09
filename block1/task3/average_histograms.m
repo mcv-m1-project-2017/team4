@@ -15,14 +15,12 @@ function [ histograms, bins ] = average_histograms (paths)
   n_images = 0;
   for i = 1:size(paths)
     %% Read file and its annotations
-    %image_path = strcat(directory,'/',files(i).name); (i).name,2)-3), 'txt');
     image_path = paths(i,:);
     image_filename = strsplit(image_path, '/');
     image_filename = image_filename{end};
-    part1 = strsplit(image_filename, '.');
-    part2 = strsplit(image_filename, '.');
-    image_name = strcat(part1{1}, '.', part2{2});
-    annotation_path = fullfile(fileparts(paths(i,:)), 'gt', strcat('gt.', image_name, '.txt'));
+    name_and_ext = strsplit(image_filename, '.');
+    image_name = strcat(name_and_ext{1}, '.', name_and_ext{2});
+    annotation_path = fullfile(fileparts(image_path), 'gt', strcat('gt.', image_name, '.txt'));
     [bb, signs] = LoadAnnotations(annotation_path);
     
     % Iterate over all the annotations of each image
