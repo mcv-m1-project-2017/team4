@@ -55,14 +55,14 @@ for i = 1:size(files)
 end
 
 % Use 'MAX' algorithm
-features = train_max(train_paths);
-mask_paths = predict_max(features, validation_paths);
-mask_paths = predict_max(features, test_paths);
+%features = train_max(train_paths);
+%mask_paths = predict_max(features, validation_paths);
+%mask_paths = predict_max(features, test_paths);
 
 % Use 'GAUSSIAN' algorithm
-%features = train_gaussian(train_paths);
+features = train_gaussian(train_paths);
 %mask_paths = predict_gaussian(features, validation_paths);
-%mask_paths = predict_gaussian(features, test_paths);
+mask_paths = predict_gaussian(features, test_paths);
 
 % Task 4: Evaluate the segmentation using ground truth
 % [ precision, accuracy, recall, f1_mesure, 

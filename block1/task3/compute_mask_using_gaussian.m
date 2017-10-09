@@ -8,9 +8,7 @@ function [ mask ] = compute_mask_using_gaussian (image, features, threshold)
   % Iterate over all classes (equal to the number of features)
   for class=1:size(features, 2)
     feature = features(class).r;
-    disp(feature)
-    mu = feature(1)
-    sigma = feature(2)
+    mu = feature(1);  sigma = feature(2);
     red_mask = (image(:,:,1) > mu - threshold*sigma) & ...
                (image(:,:,1) < mu + threshold*sigma);
            

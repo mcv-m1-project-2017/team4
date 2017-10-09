@@ -14,7 +14,7 @@ function [ paths_of_computed_masks ] = predict_max(features, paths)
     tmp = strsplit(image_filename, '.');
     image_name = strcat(tmp{1},'.',tmp{2});
     image = imread(image_path);
-    mask = compute_mask_using_max (image, features, 10);
+    mask = compute_mask_using_max (image, features, 30);
     
     if show_masks
       imshow(mask, [0, 1])
