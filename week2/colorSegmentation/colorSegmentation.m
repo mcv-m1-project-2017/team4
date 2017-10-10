@@ -12,11 +12,11 @@ output:- mask: the masks generated for the input images
 ---------------------------
 %}
 % Convert image to HSV color space
- image_hsv = colorspace('rgb-> hsv',image);
-% image_hsv = rgb2hsv(image);
+%  image_hsv = colorspace('rgb-> hsv',image);
+ image_hsv = rgb2hsv(image);
  
  % Split the channels
- h = image_hsv(:,:,1);
+ h = image_hsv(:,:,1).*360;
  s = image_hsv(:,:,2);
  v = image_hsv(:,:,3);
  
