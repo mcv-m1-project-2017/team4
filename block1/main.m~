@@ -11,8 +11,8 @@ if (is_octave())
 end  
 
 global dataset_path
-root = fileparts(fileparts(pwd));
-dataset_path = fullfile(root, 'datasets', 'trafficsigns');
+root = fileparts(fileparts(pwd))
+dataset_path = fullfile(root, 'datasets', 'trafficsigns')
 
 %% Task 1: Determine the characteristics of the signals in the training set: 
 %   max and min size, form factor, filling ratio of each type of signal, 
@@ -35,20 +35,24 @@ dataset_path = fullfile(root, 'datasets', 'trafficsigns');
 % Task 3: Color segmentation to generate a mask
 % [ features ] = train(paths_for_training, class_names)
 % [ paths_of_computed_masks ] = predict(paths_for_validation, features)
+clear train_paths;
+clear validation_paths;
+clear test_paths;
+
 files =  ListFiles(fullfile(dataset_path, 'train'));
-train_paths = zeros(size(files), 1);
+train_paths = zeros(size(files), 1)
 for i = 1:size(files)
   train_paths(i,:) = fullfile(dataset_path, 'train', files(i).name);
 end
 
 files = ListFiles(fullfile(dataset_path, 'validation'));
-validation_paths = zeros(size(files), 1);
+train_paths = zeros(size(files), 1)
 for i = 1:size(files)
   validation_paths(i,:) = fullfile(dataset_path, 'validation', files(i).name);
 end
 
 files = ListFiles(fullfile(dataset_path, 'test'));
-test_paths = zeros(size(files), 1);
+train_paths = zeros(size(files), 1)
 for i = 1:size(files)
   test_paths(i,:) = fullfile(dataset_path, 'test', files(i).name);
 end
