@@ -9,7 +9,7 @@ Computer Vision Center, Barcelona
 ---------------------------
 Project M1/Block2
 ---------------------------
-This function is used to generate masks for color segmentation in HSV color space.
+This function is used to generate masks for color segme;ntation in HSV color space.
 input: - image: the images we need to create masks for
 output:- mask: the masks generated for the input images
 ---------------------------
@@ -28,18 +28,22 @@ output:- mask: the masks generated for the input images
  mask = zeros(row,colum);
  
  %Define Red and blue thresholds
- hred = [350 10];
- hblue = [180 230];
- st = 0.5;
- vt = 0%0.25;
+ hred = [350 20];
+ hblueA = [180 250];
+ hblueB = [210 300];
+ sred = 0.45;
+ sblueA = 0.4;
+ sblueB = [0.15 0.4];
+ vred = 0;%0.25;
+ vblueB = 0.3;
+ 
  
  %Create red and blue masks
-   red = ((((h<hred(2))&(h>=0))|((h<=360)&(h>hred(1))))&(s>st)&(v>vt));
- blue = ((h<hblue(2)) & (h>hblue(1)) & (s>st));
+  red = ((((h<hred(2))&(h>=0))|((h<=360)&(h>hred(1))))&(s>sred)&(v>vred));
+  blueA = ((h<hblueA(2)) & (h>hblueA(1)) & (s>sblueA));
+  blueB = ((h<hblueB(2)) & (h>hblueB(1)) & (s>sblueB(1)) & (s<sblueB(2))) &(v<vblueB);
 
-%  red = ((((h<10)&(h>=0))|((h<=360)&(h>350)))&(s>50/100)&(v>25/100));
-%  blue = ((h<230) & (h>180) & (s>50/100));
  %Create final mask
- mask = red |blue;
+ mask = red |blueA|blueB;
 
 end
