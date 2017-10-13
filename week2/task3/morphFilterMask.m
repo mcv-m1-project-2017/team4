@@ -16,14 +16,19 @@ output:- filteredMmask: the masks filtered with morphological operators from the
 %}
 
 
-% SE = strel('disk',20);
-% filteredMask = imclose(mask, SE);
-
-filteredMask = bwmorph(mask, 'fill');
-
 %Filter small pixels out of bright or dark areas
+SE = strel('disk',3);
+filteredMask = imopen(mask, SE);
+filteredMask = imclose(filteredMask, SE);
+
+%Close triangular signals
+SE = strel('diamond',30);
+filteredMask = imclose(filteredMask, SE);
+
+%Filter big pixels out of bright or dark areas
 SE = strel('disk',5);
 filteredMask = imopen(filteredMask, SE);
 filteredMask = imclose(filteredMask, SE);
+
 
 end

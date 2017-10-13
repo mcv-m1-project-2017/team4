@@ -6,8 +6,8 @@ addpath('../colorSegmentation');
 pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
 processingTimes = [];
 
-plotImgs = true;
-plotGran = false;
+plotImgs = false;
+plotGran = true;
 
 dataset = 'train';
 root = fileparts(fileparts(fileparts(pwd)));
@@ -28,8 +28,8 @@ for i = 1:size(files)
   segmentationMask = colorSegmentation( image );
   
   %Apply morphlogical operators to improve mask
-  %filteredMask = morphFilterMask(segmentationMask);
-   filteredMask = segmentationMask;
+  filteredMask = morphFilterMask(segmentationMask);
+%    filteredMask = segmentationMask;
   %Compute time per frame
   time = toc;
   
@@ -41,11 +41,11 @@ for i = 1:size(files)
       subplot(2,2,4), imshow(filteredMask);
       if (plotGran)
         %Compute image granulometry
-          maxSize = 20;
+          maxSize = 30;
           x =((1-maxSize):maxSize);
-          pecstrum = granulometry(segmentationMask,'disk',maxSize);
+          pecstrum = granulometry(filteredMask,'diamond',maxSize);
           derivative = [-diff(pecstrum) 0];
-          subplot(2,2,3), plot(x,derivative),grid, title('Derivate Granulometry with a ''disk'' as SE');
+          subplot(2,2,3), plot(x,derivative),grid, title('Derivate Granulometry with a ''diamond'' as SE');
       end
       
   end
