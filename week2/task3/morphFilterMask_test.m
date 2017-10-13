@@ -9,7 +9,7 @@ processingTimes = [];
 plotImgs = false;
 plotGran = true;
 
-dataset = 'train';
+dataset = 'validation';%'train';
 root = fileparts(fileparts(fileparts(pwd)));
 path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
