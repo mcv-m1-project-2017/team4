@@ -1,6 +1,9 @@
 function [filteredMask]= morphFilterMask(mask)
 %{
+Jonatan Poveda
 Martí Cobos
+Juan Francesc Serracant
+Ferran Pérez
 Master in Computer Vision
 Computer Vision Center, Barcelona
 ---------------------------
@@ -11,11 +14,12 @@ input: - mask: the input mask to be filtered
 output:- filteredMmask: the masks filtered with morphological operators from the input mask
 ---------------------------
 %}
-% Convert image to HSV color space
 
 
-SE = strel('disk',20);
-filteredMask = imclose(mask, SE);
+% SE = strel('disk',20);
+% filteredMask = imclose(mask, SE);
+
+filteredMask = bwmorph(mask, 'fill');
 
 %Filter small pixels out of bright or dark areas
 SE = strel('disk',5);
