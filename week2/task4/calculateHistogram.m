@@ -15,14 +15,15 @@ input:  - image:  nxmx3 array representing image to be analyzed
         - boundingBox: mask bounding box coordinates (TopLeftY, TopLeftX, BottomRightY, BottomRightX)
 output: - histogram: image color histogram
 ---------------------------
-%}    
-    
-    
+%}
+
+    close all;
     %%modify mask inorder to avoid errors when masks are not well defined
     mask(mask>0)=1;
-    hsv = rgb2hsv(image);
-    h= hsv(:,:,1);
-    
+    image_lab = rgb2lab(image);
+    a= image_lab(:,:,2);
+    b= image_lab(:,:,3);
+
     %Analyze Bounding box
     topLeftY = boundingBox(1);
     topLeftX = boundingBox(2);
@@ -34,7 +35,12 @@ output: - histogram: image color histogram
     BBmask(int32(topLeftY):int32(bottomRightY),int32(topLeftX):int32((bottomRightX))) = 1;
     mask(BBmask ==0)=0;
 
-    colorHistogram = histogram(h(mask==1),nBins);
+    %compute color histograms for a and b chromacity coordinates
+    counts = linspace(-100,100,nBins+1);
+    colorHistogram = histogram(a(mask==1),counts,'Normalization','probability');
+    aColorHistogram = colorHistogram.Values;
+    counts = linspace(-100,100,nBins+1);
+    colorHistogram = histogram(b(mask==1),counts,'Normalization','probability');
+    bColorHistogram = colorHistogram.Values;
 
-    
 end

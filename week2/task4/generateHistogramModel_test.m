@@ -3,7 +3,9 @@ clear;
 
 addpath('../../evaluation');
 addpath('../colorSegmentation');
-pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
+addpath('../../colorspace');
+global nBins
+nBins = 100;
 
 %%Compute validation set histogram back-projection model
 
