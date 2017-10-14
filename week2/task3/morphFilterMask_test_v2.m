@@ -1,4 +1,4 @@
-%close all;
+close all;
 clear;
 addpath('../../evaluation');
 addpath('../colorSegmentation');
@@ -6,10 +6,10 @@ addpath('../colorSegmentation');
 pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
 processingTimes = [];
 
-plotImgs = true;
+plotImgs = false;
 plotGran = true;
 
-dataset = 'train'; %'validation';%'train';
+dataset = 'validation';%'train';
 root = fileparts(fileparts(fileparts(pwd)));
 path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
