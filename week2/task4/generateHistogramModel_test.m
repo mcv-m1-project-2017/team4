@@ -12,4 +12,4 @@ nBins = 100;
 dataset = 'train';
 root = fileparts(fileparts(fileparts(pwd)));
 trainPath = fullfile(root, 'datasets', 'trafficsigns', dataset);
-model = generateHistogramModel(trainPath);
+[aModels bModels] = generateHistogramModel(trainPath,nBins);

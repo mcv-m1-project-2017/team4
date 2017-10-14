@@ -1,4 +1,4 @@
-function [colorHistogram] = calculateHistogram(image, mask, boundingBox, nBins)
+function [aColorHistogram bColorHistogram] = calculateHistogram(image, mask, boundingBox, nBins)
 %{
 Jonatan Poveda
 Martí Cobos
@@ -31,7 +31,7 @@ output: - histogram: image color histogram
     bottomRightX = boundingBox(4);
 
     %modify mask in order to only accept values inside the BB
-    BBmask = zeros (size(R));
+    BBmask = zeros (size(a));
     BBmask(int32(topLeftY):int32(bottomRightY),int32(topLeftX):int32((bottomRightX))) = 1;
     mask(BBmask ==0)=0;
 
