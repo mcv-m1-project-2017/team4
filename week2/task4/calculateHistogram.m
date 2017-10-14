@@ -36,10 +36,10 @@ output: - histogram: image color histogram
     mask(BBmask ==0)=0;
     
     %compute color histograms for a and b chromacity coordinates
-    counts = linspace(-100,100,nBins);
+    counts = linspace(-100,100,nBins+1);
     colorHistogram = histogram(a(mask==1),counts,'Normalization','probability');
     aColorHistogram = colorHistogram.Values;
-    counts = linspace(-100,100,nBins);
+    counts = linspace(-100,100,nBins+1);
     figure;
     colorHistogram = histogram(b(mask==1),counts,'Normalization','probability');
     bColorHistogram = colorHistogram.Values;
