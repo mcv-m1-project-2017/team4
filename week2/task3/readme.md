@@ -4,7 +4,9 @@
 
 * **Method 1**: *'method1.m'*
 * **Method 2**: *'morphFilterMask.m'*, run *'morphFilterMask_test.m'* to analyze performance on train or validation split.
-* **Method 3**: *'morphFilterMask_v2.m'*, run *'morphFilterMask_test_v2.m'* to analyze performance on train or validation split.
+* **Method 3**: *'morphFilterMask_method3.m'*, run *'morphFilterMask_test_method3.m'* to analyze performance on train or validation split.
+* **Method 3**: *'morphFilterMask_method4.m'*, run *'morphFilterMask_test_method4.m'* to analyze performance on train or validation split.
+* **Method 3**: *'morphFilterMask_method5.m'*, run *'morphFilterMask_test_method5.m'* to analyze performance on train or validation split.
 
 The following auxiliar functions have been created:
 * *'generateTestMasks.m'* saves test mask images.
