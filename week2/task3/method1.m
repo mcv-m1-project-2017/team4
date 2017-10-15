@@ -5,15 +5,20 @@ path = '../../../datasets/trafficsigns/validation';
 pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
 processing_times = [];
 
-files = dir( strcat(path, "/*.jpg") );
+files = dir( strcat(path, '/*.jpg') );
 for i = 1:size(files)
   image = imread(strcat(path, '/', files(i).name));
 
   tic;
   
+  % HSV color segmentation
   segmentation_mask = colorSegmentation( image );
-  result = segmentation_mask;  
+  result = segmentation_mask;
+
+  % Area filling
   result = imfill(result, 'holes');
+
+  % Noise reduction
   result = imopen(result, strel('square',20));
   
   time = toc;
