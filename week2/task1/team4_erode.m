@@ -80,7 +80,7 @@ if (isa(inImg, 'uint8') || isa(inImg, 'double'))
     if (~isa(str_elem, 'strel'))
         str_elem = double(str_elem);              % Convert SE to double.
     else
-        str_elem = double(str_elem.Neighborhood); % Get actual SE array.
+        str_elem = double(getnhood(str_elem)); % Get actual SE array.
     end
     
     str_elem(str_elem ~= 1) = Inf;          % SE with value 1 or 'Inf'.
@@ -146,7 +146,7 @@ elseif (isa(inImg, 'logical'))              % BW/binary (logical) image.
     if (~isa(str_elem, 'strel'))
         str_elem = logical(str_elem);       % Convert SE to logical.
     else
-        str_elem = str_elem.Neighborhood;   % Get actual SE array.
+        str_elem = getnhood(str_elem);   % Get actual SE array.
     end
     
     str_elem(str_elem ~= 1) = 0;            % SE with value 1 or 0.

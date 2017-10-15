@@ -42,7 +42,7 @@ imshow(imClose, []);
 title('Closing');
 
 subplot(2,4,5);
-imshow(SE.Neighborhood,[0,1]);
+imshow(getnhood(SE),[0,1]);
 title('SE');
 
 subplot(2,4,7);
