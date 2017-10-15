@@ -17,14 +17,14 @@ for i = 1:size(file_list)
   %segmentation_mask = compute_mask_using_max( image );
   segmentation_mask = colorSegmentation( image );
   %imshow(segmentation_mask)
-  
+
   %tic;
-  
+
   % your morphology code here
-  
+
   time = toc;
   processing_times = [processing_times; time];
-  
+
   pixelAnnotation = imread(strcat(path, '/mask/mask.', files(i).name(1:size(files(i).name,2)-3), 'png'))>0;
   [localPixelTP, localPixelFP, localPixelFN, localPixelTN] = PerformanceAccumulationPixel(segmentation_mask, pixelAnnotation);
   pixelTP = pixelTP + localPixelTP;
@@ -40,5 +40,5 @@ total = pixelTP + pixelFP + pixelFN + pixelTN;
 
 [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity] = PerformanceEvaluationPixel(pixelTP, pixelFP, pixelFN, pixelTN);
 [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity]
-  
+
 mean(processing_times)
