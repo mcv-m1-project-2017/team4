@@ -1,4 +1,4 @@
-function [mask] = segmentation(image, amodel, bmodel)
+function [ p ] = segmentation(image, amodels, bmodels)
 %{
 Jonatan Poveda
 Martí Cobos
@@ -11,14 +11,16 @@ Project M1/Block2
 ---------------------------
 This function is used to segment an image using two image colour histograms.
 input:  - image:  nxmx3 array representing image to be analyzed
-        - amode: colour histogram model a
-        - bmodel: colour histogram model b
-output: - mask: nxm array representing image mask
+        - amode: nxmx3 a-colour histogram of the 3 classes
+        - bmodels: nxmx3 b-colour histogram of the 3 classes
+output: - p: nxmx3 array representing pixel probabilites of belonging to 3 classes
+% output: - mask: nxm array representing image mask
 ---------------------------
 %}
   plot_histogram_comparison = false;
   %%Evaluate the image histogram
-  nBins = size(amodel,2);
+  nBins = size(amodels,2);
+  mask = zeros(size(image(:,:,1)));
 
   if plot_histogram_comparison
     % Set the bounding box as all the image
@@ -31,40 +33,39 @@ output: - mask: nxm array representing image mask
     subplot(2,2,1), plot(aColorHistogram), title('test image a-hist');
     subplot(2,2,2),plot(bColorHistogram),  title('test image b-hist');
 
-    subplot(2,2,3), plot(amodel'),  title('a-model'), legend('A-B-C', 'D-F', 'E');
-    subplot(2,2,4), plot(bmodel'), title('b-model'), legend('A-B-C', 'D-F', 'E');
+    subplot(2,2,3), plot(amodels'),  title('a-model'), legend('A-B-C', 'D-F', 'E');
+    subplot(2,2,4), plot(bmodels'), title('b-model'), legend('A-B-C', 'D-F', 'E');
   end
 
   % Calculate probability
   % for each pixel as the right colourspace calculate probability using models
   im = rgb2lab(image);
-  a = im(:,:,2);
-  b = im(:,:,3);
+  a_channel = im(:,:,2);
+  b_channel = im(:,:,3);
 
-  disp('size a'),   size(a)
-  disp('a-range'),   [max(a(:)), min(a(:))]
-  disp('b-range'),   [max(b(:)), min(b(:))]
   counts = linspace(-100,100,nBins+1);
+  n_classes = size(amodels,1);
 
-  % FIXME: remove it
-  % get one pixel
-  [xpos,ypos] = find(a==max(a(:)));
-  p = a(xpos, ypos);
-  pixel_a = a(xpos, ypos)
-  pixel_b = b(xpos, ypos)
-
-  % Find closest bin to the pixel value
-  dist = counts - pixel_a;
-  disp('minium distance'), min(dist)
-  position_where_to_compute_probability = find(dist==min(abs(dist)));
-
-  class_1 = [amodel(1,:); bmodel(1,:)];
-  size(class_1)
+  % For each pixel find its probability and Acummulate
+  probability = nan(size(im,1), size(im,2), size(amodels,1)); % probability of image belonging to a class
+  pixel_probability = 0;
   for i=1:size(im,1)
     for j=1:size(im,2)
-  %     % Foreach pixel
-      % pixel = im(i,j);
-
+      pa = a_channel(i,j);
+      pb = b_channel(i,j);
+      % Find closest bin to the pixel value
+      dist_a = abs(counts - pa);
+      dist_b = abs(counts - pb);
+      closest_bin_a = find(dist_a==min(dist_a));
+      closest_bin_b = find(dist_b==min(dist_b));
+      for class = 1:n_classes
+        model_a = amodels(class,:);
+        model_b = bmodels(class,:);
+        % [ size(pixel_probability), 99, size(model(closest_bin)), 99,  size(probability(class))]
+        pixel_probability = model_a(closest_bin_a) * model_b(closest_bin_b);
+        probability(i,j, class) = pixel_probability;
+      end
     end
   end
+  p = probability / numel(a_channel);
 end

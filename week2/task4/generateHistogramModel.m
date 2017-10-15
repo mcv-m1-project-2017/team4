@@ -1,4 +1,4 @@
-function [ aHistogramsModels,bHistogramsModels] = generateHistogramModel(datasetPath, nBins)
+function [ aHistogramsModels, bHistogramsModels] = generateHistogramModel(datasetPath, nBins)
 %{
 Jonatan Poveda
 Martí Cobos
@@ -10,7 +10,7 @@ Computer Vision Center, Barcelona
 Project M1/Block2
 ---------------------------
 This function is used to generate the histogram back projection model.
-input:  - datasetPath: the input path containing validation images      
+input:  - datasetPath: the input path containing validation images
 output: - histogramModels: histogram back projection model for each sign
 type
 ---------------------------
@@ -37,7 +37,7 @@ type
             BB = [str2double(imgData{1}) str2double(imgData{2}) str2double(imgData{3}) str2double(imgData{4})];
             trafficSignType{1} = imgData{5};
             [aColorHistogram, bColorHistogram] = calculateHistogram (img, mask, BB,nBins);
-            
+
             %Acummulate color histogram by signal type
             if (strcmp(trafficSignType{1},'A')==1)|| (strcmp(trafficSignType{1},'B')==1) ||(strcmp(trafficSignType{1},'C')==1)
                 aHistogramsModels(1,:) = aHistogramsModels(1,:) + aColorHistogram;
@@ -52,18 +52,16 @@ type
                 bHistogramsModels(3,:) = bHistogramsModels(3,:) + bColorHistogram;
                 nSignals(3) = nSignals(3)+ 1;
             end
-            
+
             %REad next file type
             imgData = fgetl(fid);
         end
         fclose(fid);
     end
-    
-    
+
     %Histogram normalization
     for i=1:3
-        aHistogramsModels(:,i) = aHistogramsModels(:,i)/nSignals(i);
-        bHistogramsModels(:,i) = bHistogramsModels(:,i)/nSignals(i);
+        aHistogramsModels(i,:) = aHistogramsModels(i,:)/nSignals(i);
+        bHistogramsModels(i,:) = bHistogramsModels(i,:)/nSignals(i);
     end
-
 end

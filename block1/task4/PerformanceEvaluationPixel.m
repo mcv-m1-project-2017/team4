@@ -15,6 +15,9 @@ function [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity] = P
     % The function returns the precision, accuracy, specificity and sensitivity
 
     pixelPrecision = pixelTP / (pixelTP+pixelFP);
+    if isnan(pixelPrecision)
+      pixelPrecision = 0;
+    end
     pixelAccuracy = (pixelTP+pixelTN) / (pixelTP+pixelFP+pixelFN+pixelTN);
     pixelSpecificity = pixelTN / (pixelTN+pixelFP);
     pixelSensitivity = pixelTP / (pixelTP+pixelFN);
