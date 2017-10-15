@@ -1,16 +1,17 @@
 close all;
 clear;
-addpath('../../evaluation');
-addpath('../colorSegmentation');
+addpath('../evaluation');
+addpath('/colorSegmentation');
 
 pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
 processingTimes = [];
+pecstrum = zeros(1,80);
 
 plotImgs = false;
 plotGran = true;
 
-dataset = 'validation';%'train';
-root = fileparts(fileparts(fileparts(pwd)));
+dataset = 'train';
+root = fileparts(fileparts(pwd));
 path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
 %Get image files
@@ -20,8 +21,8 @@ files = dir( strcat(path, '/*.jpg') );
 for i = 1:size(files)
   
   %Read RGB iamge
-  %fprintf('----------------------------------------------------\n');
-  %fprintf('Analysing image number  %d', i);
+  fprintf('----------------------------------------------------\n');
+  fprintf('Analysing image number  %d', i);
   image = imread(strcat(path, '/', files(i).name));
   tic;
   %Apply HSV color segmentation to generate image mask
@@ -43,14 +44,17 @@ for i = 1:size(files)
         %Compute image granulometry
           maxSize = 30;
           x =((1-maxSize):maxSize);
-          pecstrum = granulometry(filteredMask,'diamond',maxSize);
+          pecstrum = granulometry(segmentationMask,'disk',maxSize);
           derivative = [-diff(pecstrum) 0];
-          subplot(2,2,3), plot(x,derivative),grid, title('Derivate Granulometry with a ''diamond'' as SE');
+          subplot(2,2,3), plot(x,derivative),grid, title('Derivate Granulometry with a ''disk'' as SE');
       end
       
   end
   processingTimes = [processingTimes; time];
   
+  %maxSize = 40;
+  %x =((1-maxSize):maxSize);
+  %pecstrum = pecstrum + granulometry(filteredMask,'diamond',maxSize);
   %Compute image TP, FP, FN, TN
   pixelAnnotation = imread(strcat(path, '/mask/mask.', files(i).name(1:size(files(i).name,2)-3), 'png'))>0;
   [localPixelTP, localPixelFP, localPixelFN, localPixelTN] = PerformanceAccumulationPixel(filteredMask, pixelAnnotation);
@@ -60,6 +64,10 @@ for i = 1:size(files)
   pixelTN = pixelTN + localPixelTN;
 
 end
+
+% x =((1-maxSize):maxSize);
+%derivative = [-diff(pecstrum) 0];
+%plot(x,derivative),grid, title('Derivate Granulometry with a ''diamond'' as SE');
 
 %Compute algorithm precision, accuracy, specificity, recall and fmeasure
 [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelRecall] = PerformanceEvaluationPixel(pixelTP, pixelFP, pixelFN, pixelTN);

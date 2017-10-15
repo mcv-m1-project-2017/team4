@@ -28,19 +28,7 @@ MorphOper_Performance;      %
 % with empty workspace).
 
 %% Task 3: Use operators to improve results in sign detection
-image_number = 1
-files =  ListFiles(fullfile(dataset_path, 'test'));
-file = files(image_number).name;
-name = split(file, '.jpg'); name=name{1};
-path = fullfile(dataset_path, 'test', 'mask', strcat('mask.', name, '.png'));
-disp(path);
-image = imread(path);
-% image = image==0;
-subplot(1,2,1), imshow(image);
-se = strel('disk', 3);
-modified = imopen(image, se);
-% modified = imfill(image, 'holes');
-subplot(1,2,2), imshow(modified, []);
+morphFilterMask_test
 
 
 %% Task 4: Apply histogram back-projection to perform color segmentation
