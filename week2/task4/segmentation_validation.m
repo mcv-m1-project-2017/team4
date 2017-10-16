@@ -8,23 +8,23 @@ nBins = 100;
 % Load an image
 dataset = 'validation';
 root = '/home/jon/mcv_repos';
+root = '/home/mcv04';
 imagesPath = fullfile(root, 'datasets', 'trafficsigns', dataset);
-maskPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
+masksPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
 
 imageFiles = dir(fullfile(imagesPath, '*.jpg'));
-maskFiles = dir(fullfile(maskPath, '*.png'));
-
+%maskFiles = dir(fullfile(maskPath, '*.png'));
 
 nFrames = size(imageFiles,1);
 pixelTP = 0; pixelFP = 0; pixelFN = 0; pixelTN = 0;
-nFrames = 10  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Remove that!
+%nFrames = 10  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Remove that!
 tic
 for i=1:nFrames
   imageFile = imageFiles(i);
-  maskFile = maskFiles(i);
-
-  imagePath = fullfile(imageFile.folder, imageFile.name);
-  maskPath = fullfile(maskFile.folder, maskFile.name);
+  tmp = strsplit(imageFile.name, '.jpg'); imageFileName = tmp{1};
+  maskFileName = strcat('mask.', imageFileName, '.png');
+  imagePath = fullfile(imagesPath, imageFile.name)
+  maskPath = fullfile(masksPath, maskFileName)
   image = imread(imagePath);
   mask_gt = imread(maskPath);
 
@@ -38,9 +38,12 @@ for i=1:nFrames
   pixelFN = pixelFN + FN;
   pixelTN = pixelTN + TN;
 end
-time_per_frame = toc / nFrames
+time_per_frame_in_seconds = toc / nFrames
 total = pixelTP + pixelFP+ pixelFN + pixelTN;
 [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity] = PerformanceEvaluationPixel(pixelTP, pixelFP, pixelFN, pixelTN);
 
-results1 = [pixelTP, pixelFP, pixelFN, pixelTN] ./ total
+disp('TP, FP, FN, TN')
+result1 = [pixelTP, pixelFP, pixelFN, pixelTN] ./ total
+disp('Precision, Accuracy, Specificity, Sensitivity')
 results2 = [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelSensitivity]
+
