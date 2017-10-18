@@ -18,7 +18,7 @@ output: - signalClass: Signal classified in one of the 6 signal groups
 %}
 
 %Dummy code to develope multiscalewindowing
-size =sum(ROIMask(:)) ;
+size =sum(ROIMask(:));
 if ((size> 1000)&&(size< 50000))
     signalClass = 'A';
 else
