@@ -29,8 +29,7 @@ gtMask = gtMask > 0;
 
 % DO ALL THE MAGIC HERE
 oMask = zeros(size(iMask));
-multiscaleSearch(iMask)
-run('mss.m')
+run('mss.m')  % Substitute this script call to a function call
  
 if plot
   figure(1);
