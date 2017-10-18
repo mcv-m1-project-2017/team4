@@ -21,8 +21,8 @@ type (A,B,C,D,E,F) or no detection (X).
 % Run w3_main.m before this one
 
 mask = iMask;
-% plot = false;
-plot = true;
+plot = false;
+% plot = true;
 
 %   tic
 box = ones(10, 10);
