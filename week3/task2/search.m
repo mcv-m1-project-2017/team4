@@ -48,9 +48,8 @@ output: - list of pixels susceptible to be from an object.
         i = i + 1;
       end
     catch
-      % Skip if a box cannot be centered on this pixel
+      % Skip if a window cannot be centered on this pixel
     end
-
     % imshow(region,[]); title(signalClass);
     % pause(1);
   end
