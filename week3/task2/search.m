@@ -17,6 +17,7 @@ input:  - mask: nxm binary mask
 output: - list of pixels susceptible to be from an object.
 ---------------------------
 %}
+  debug = false;
   is_a_signal = false;
   center = ((size(window,1)-1)/2);
 
@@ -27,17 +28,31 @@ output: - list of pixels susceptible to be from an object.
   i = 1;
   pixel_proposals(i,:) = [0 0];
 
+  regions_scanned = 0;
   % Check each candidate and save positive ones
   for candidate = 1:size(candidates,1)
-    c = candidates(candidate,:)
-    range = [c(1)-center, c(1)+center, c(2)-center, c(2)+center];
-    region = mask(range(1):range(2), range(3):range(4)).*window;
-    signalClass = checkRegion(region, 0);
-    if strcmp(signalClass,'X') == 0   % It seems to be an object
-      pixel_proposals(i) = c;
-      i = i + 1;
+    if debug
+      sprintf('Checking candidate %d', candidate)
     end
+    c = candidates(candidate,:);
+    range = [c(1)-center, c(1)+center, c(2)-center, c(2)+center];
+    try
+      region = mask(range(1):range(2), range(3):range(4)).*window;
+      regions_scanned = regions_scanned + 1;
+      if debug
+        sprintf('Checking region %d', regions_scanned);
+      end
+      signalClass = checkRegion(region, 0);
+      if strcmp(signalClass,'X') == 0   % It seems to be an object
+        pixel_proposals(i) = c;
+        i = i + 1;
+      end
+    catch
+      % Skip if a box cannot be centered on this pixel
+    end
+
     % imshow(region,[]); title(signalClass);
     % pause(1);
   end
+  sprintf('Number of regions scanned: %d/%d', regions_scanned,size(candidates, 1))
 end
