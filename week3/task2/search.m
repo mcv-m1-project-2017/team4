@@ -53,5 +53,6 @@ output: - list of pixels susceptible to be from an object.
     % imshow(region,[]); title(signalClass);
     % pause(1);
   end
-  sprintf('Number of regions scanned: %d/%d', regions_scanned,size(candidates, 1))
+  sprintf('Number of regions scanned: %d/%d', ...
+          regions_scanned,size(candidates, 1))
 end
