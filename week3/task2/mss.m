@@ -40,7 +40,7 @@ while min(reduction_size) > minimum_size
   i = i + 1;
   reduction_size = ceil(reduction_size / 2);
 end
-padded_size = reduction_size * 2^(i-1)
+padded_size = reduction_size * 2^(i-1);
 padded_mask = padarray(mask, padded_size - original_size, 0, 'post');
 
 % Do as many reductions as the image is 4 times the box (we expect the
