@@ -64,10 +64,16 @@ for i = 1:size(files)
     
     %Apply morphlogical operators to improve mask
     % Method 5
-    filteredMask = method5(segmentationMask);
+%     filteredMask = method5(segmentationMask);
+%     filteredMask = method5_geometricalConstraints(filteredMask,...
+%         geometricFeatures, idx);
+    % Test simplest yet effective method 1 (the best for test)
+    
+    filteredMask = imfill(segmentationMask, 'holes');
+    filteredMask = imopen(filteredMask, strel('square', 20));
     filteredMask = method5_geometricalConstraints(filteredMask,...
-        geometricFeatures, idx);
-    %Max_thr(t), Min_thr(t));
+       geometricFeatures, idx);
+
     
     %Compute time per frame
     time = toc;
@@ -115,8 +121,8 @@ timePerFrame = mean(processingTimes);
 % fprintf('Results with max thr.: %f and min thr.: %f\n', Max_thr(t),...
 %     Min_thr(t));
 fprintf('----------------------------------------------------\n');
-fprintf('Parameters \t ==> \t pixelPrecision; \t pixelAccuracy; \t pixelRecall; \t Fmeasure; \t pixelTP; \t pixelFP; \t pixelFN; \t timePerFrame\n');
-fprintf('Results \t ==> \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f\n',...
+fprintf('Prm. ==> Precision; \t Accuracy; \t Recall; \t Fmeasure; \t pixelTP; \t pixelFP; \t pixelFN; \t timexFrame\n');
+fprintf('Res. ==> %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f\n',...
     pixelPrecision, pixelAccuracy, pixelRecall,FMeasure, pixelTP, pixelFP,...
     pixelFN, timePerFrame);
 %  end
