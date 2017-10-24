@@ -63,15 +63,30 @@ end
 
 %% Look at all the pyr{k} images to find a traffic sign
 n_thumbnails = size(pyr,2);
+mask_of_positive_objects = true(size(pyr{6}));
+
+% mask_of_positive_objects(2:15, 1:15) = 0; % FIXME: delete this line
+
 for n = n_thumbnails:-1:1
   sprintf('Processing reduction number: %d', n)
   im = pyr{n};
-  pixel_proposals = search(im, window);
-
   % 'Remove' area in the next iteration with the region, scaled up, which has a center in pixel_proposals(k)
   % Region is a 'box' centered on the pixel_proposals(k).
   % To scale up, ...
-  break;  % FIXME: delete me
+  % [n, size(im), size(mask_of_positive_objects)]
+
+  if n ~= 6
+    mask_of_positive_objects = imresize(mask_of_positive_objects, 2);
+  end
+  size(mask_of_positive_objects)
+
+  im = im & mask_of_positive_objects;
+
+  [pixel_proposals, mask_of_positive_objects] = linearSearch(im, window);
+  % subplot(2,1,1), imshow(mask_of_positive_objects);
+  % subplot(2,1,2), imshow(im);
+  % pause(2)
+  % break;  % FIXME: delete me
 end
 
 %   output = toc;

@@ -14,6 +14,6 @@ input:  - mask: nxmx1 binary mask
 output: - list of pixels susceptible to be from an object.
 ---------------------------
 %}
-  [ xpos, ypos ] = find(mask==1);
+  [ xpos, ypos ] = find(mask);
   candidates = [ xpos, ypos ];
 end
