@@ -1,18 +1,30 @@
+%% Script to optimize the geometrical constraints defined by thresholds
+% We test different thresholds in training and choose the top 'top'
+% (normally 10) to run on validation. Finally, we choose the parameters
+% that yield the higher F-score (without compromissing a lot the precision
+% or the recall) in validation.
 close all;
 clear;
 
 addpath(genpath('../../../'));
 train = false;       % Run 'train' over the set of defined parameters.
-% Otherwise run 'validation' for top 10 parameters of last train
-% Define the top X run through validation
-top = 10;
+% Otherwise run 'validation' for top 10 parameters
+% of last train. Define the top X run through
+% validation.
+top = 1;
+
+% Define optimum geometric threshold values (found through validation)
+load('GeometricalConstraints_params.mat', 'params');
+% Load geometrical stats computed from training (tweaked with params above)
+load ('GeometricFeatures_train.mat', 'geometricFeatures');
 
 if (train)
     % ------------------------ DEFINE TRAINING VALUES -----------------------
     % IN TRAINING AND THEN TEST IN VALIDATION THE BEST ONE
     %  Compute nº of combinations and define parameters values
     % load('GeometricFeatures_train.mat')
-    valuesPerParameter = 10;
+    
+    valuesPerParameter = 1;
     tweakedParameters = 1;
     numCombinations = valuesPerParameter^(tweakedParameters);
     results_mtx_train =  zeros(numCombinations, 8); % 8 reported stats (precision, recall, F-sc....)
@@ -26,6 +38,8 @@ if (train)
     %         testMinArea_thr = linspace(0.8,2,valuesPerParameter);%1.8;%linspace(1.7, 2, 5);
     %         testMaxArea_thr = linspace(0.8,2,valuesPerParameter);%1.175;%linspace(1, 1.3, 5);
     
+    % Values playing with mean + X*std (above is for min/max area only)
+    %scaleArea = linspace(1, 4, valuesPerParameter);
     % [vecMinArea, vecMaxArea, vecStdAR] = ndgrid(testMinArea_thr, testMaxArea_thr, testScaleStd_AR);
     %         [vecMinArea, vecMaxArea] = meshgrid(testMinArea_thr, testMaxArea_thr);
     %         vecMinArea = vecMinArea(:);
@@ -64,7 +78,10 @@ if (train)
     for p = 1:numCombinations
         params = [vecMinArea(p), vecMaxArea(p), vecScaleStd_AR(p),...
             FR_triangle(p), FR_circ(p), FR_rect(p)];
-        [results_mtx_train(p,:)] = Test_morphGeometricConstraints(params, 'train');
+        %         params = [scaleArea(p), scaleArea(p), vecScaleStd_AR(p),...
+        %             FR_triangle(p), FR_circ(p), FR_rect(p)];
+        [results_mtx_train(p,:)] = Test_morphGeometricConstraints(geometricFeatures,...
+            params, 'train');
         % res_params_values(p,:) = [vecMinArea(p), vecMaxArea(p), vecStdAR(p)];
         res_params_values(p,:) = params;
     end
@@ -73,7 +90,6 @@ if (train)
     
 else % validation
     % Load results from last train
-    %     load('res_geometricConstraints_train.mat', 'results_mtx_train', 'res_params_values');
     load('res_geometricConstraints_train_v8.mat', 'results_mtx_train', 'res_params_values');
     
     % Get the parameter values for the 10 best training f-scores results
@@ -89,21 +105,9 @@ else % validation
     results_mtx_validation = zeros(top, 8);
     
     for p = 1:top
-        [results_mtx_validation(p, :)] = Test_morphGeometricConstraints(res_params_values_val(p,:),...
-            'validation');
+        [results_mtx_validation(p, :)] = Test_morphGeometricConstraints(geometricFeatures,...
+            res_params_values_val(p,:), 'validation');
     end
     save('res_geometricConstraints_validation_v8.mat',...
         'results_mtx_validation', 'res_params_values_val');
 end
-%% TRAINING & VALIDATION RESULTS
-% Procedure, test different values for training and select the best ones
-% and compute results in validation. NEVER, change validation as a function
-% directly of the results in that set, otherwise validation becomes a
-% training and the model won't generalize well!
-%
-% Results with optimized parameters (FR not yet)
-% Results for area/AR: minArea ==> 1.5556 maxArea ==> 0.8889 scaleStdAR ==> 2.2105 FR_tri ==> 4.5000 FR_circ ==> 4.5000 FR_rect ==> 4.5000
-% ----------------------------------------------------
-% Prm. ==> Precision; 	 Accuracy; 	 Recall; 	 Fmeasure; 	 pixelTP; 	 pixelFP; 	 pixelFN; 	 timexFrame
-% Res. ==> 0.7378           0.9979 	 0.6956 	 0.7160 	 0.0027 	 0.0010 	 0.0012 	 0.1629
-% fscore = results_mtx_validation(:,4);

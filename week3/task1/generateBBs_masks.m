@@ -1,18 +1,18 @@
 %% Script to generate tests masks and bounding boxes
-% close all;
-% clear;
+close all;
+clear;
 addpath(genpath('../../../'));
-dataset = 'test';
+dataset = 'validation';%'test'; % 'validation'
 
 root = fileparts(fileparts(fileparts(pwd)));
 path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
 % Method 1 ==> CCL
 % Method 2, 3 and 4 (sliding window: 'standard', 'integral', 'convolution'
-resultFolder =  fullfile(root,'m1-results','week3','test','method1');
+resultFolder =  fullfile(root, 'm1-results', 'week3', dataset, 'method1');
 
 % Define optimum geometric threshold values (found through validation)
-params = [1.5556, 0.8889, 2.2105, 4.5, 4.5, 4.5];
+load('GeometricalConstraints_params.mat', 'params');
 % Load geometrical stats computed from training (tweaked with params above)
 load ('GeometricFeatures_train.mat', 'geometricFeatures');
 
@@ -26,7 +26,6 @@ for i = 1:size(files)
     fprintf('----------------------------------------------------\n');
     fprintf('Analysing image number  %d\n', i);
     image = imread(strcat(path, '/', files(i).name));
-    
     % Apply HSV color segmentation to generate image mask
     segmentationMask = colorSegmentation(image);
     
@@ -37,8 +36,9 @@ for i = 1:size(files)
     
     % Apply geometrical constraints to lower the number of FPs
     
-    [filteredMask, windowCandidates] = method5_geometricalConstraints(filteredMask,...
-        geometricFeatures, params);
+    [CC, CC_stats] = computeCC_regionProps(filteredMask);
+    [filteredMask, windowCandidates, isSignal] = applyGeometricalConstraints(filteredMask,...
+        CC, CC_stats, geometricFeatures, params); 
     
     % Save .mat with 'windowCandidates' and mask separately
     save(strcat(resultFolder, '/',...
