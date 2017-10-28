@@ -19,7 +19,7 @@ output: - signalClass: Signal classified in one of the 6 signal groups
 
 %Dummy code to develope multiscalewindowing
   kernel = ones(size(ROIMask));
-  regionSize = max(max(conv2(ROIMask, kernel)));
+  regionSize = conv2(ROIMask, kernel,'valid');
 
   if ((regionSize > 1000) && (regionSize < 50000))
       signalClass = 'A';
