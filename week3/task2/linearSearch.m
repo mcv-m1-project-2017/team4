@@ -1,4 +1,4 @@
-function [ pixel_proposals, mask_of_positive_objects ] = linearSearch ( image, window )
+function [ region_proposals, mask_of_positive_objects ] = linearSearch ( image, window )
 %{
 Jonatan Poveda
 Martí Cobos
@@ -18,6 +18,8 @@ output: - list of pixels susceptible to be from an object.
 ---------------------------
 %}
   debug = false;
+
+  % Init vars
   is_a_signal = false;
   center = ((size(window,1)-1)/2);
 
@@ -46,7 +48,10 @@ output: - list of pixels susceptible to be from an object.
       if debug
         sprintf('Checking region %d', regions_scanned);
       end
+
+      % If the region looks like a traffic sign keep it
       signalClass = checkRegion(region, 0);
+
       if strcmp(signalClass,'X')
        % If it seems to be an object save coordinates ...
         pixel_proposals(i,:) = c;
@@ -58,16 +63,21 @@ output: - list of pixels susceptible to be from an object.
         mask_of_positive_objects(starting(1):ending(1), starting(2):ending(2)) = ~window;
         image = image & mask_of_positive_objects;
       end
-    % catch ME
+    % catch
       % Skip if a window cannot be centered on this pixel
       if debug
         sprintf('(%d,%d) Skipped!', c(1), c(2))
       end
     % end
-    % imshow(region,[]); title(signalClass);
-    % pause(1);
   end
   sprintf('Number of regions scanned: %d/%d', ...
           regions_scanned, size(candidates, 1))
+
+  region_proposals = false(size(pixel_proposals,1),5);
+  for j = 1:size(pixel_proposals,1)
+    region_proposals(j,1:4) = pixel_to_region(pixel_proposals(j,:), window);
+    % TODO add the right class (given by 'checkRegion' function)
+    region_proposals(j,5) = 'A';
+  end
 
 end
