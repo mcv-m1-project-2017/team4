@@ -24,7 +24,7 @@ load(GeometricFeaturesFile, 'geometricFeatures');
 
 % FIXME change the next line for this one:
 for i = 1:size(inputMasks,1)
-  sprintf('Checking mask %d', i)
+  %sprintf('Checking mask %d', i)
   inputMaskObject = inputMasks(i);
   inputMaskPath = fullfile(inputMaskObject.folder, inputMaskObject.name);
   iMask = imread(inputMaskPath);
@@ -36,12 +36,10 @@ for i = 1:size(inputMasks,1)
   gtMask = gtMask > 0;
 
   % DO ALL THE MAGIC HERE
-  [cancellingMask, regionProposal] = multiscaleSearch(iMask, params, geometricFeatures);
-  size(regionProposal)
-  oMask = iMask & cancellingMask;
+  [cancellingMask, regionProposal] = multiscaleSearch(iMask, geometricFeatures, params);
+  oMask = iMask & ~cancellingMask;
 
-  plot = true
-  if plot
+  if plot && mod(i,20) == 0
     figure(1);
     % Show input mask
     subplot(2,2,1);

@@ -1,4 +1,4 @@
-function [ mask, region_proposals ] = multiscaleSearch( image, params, geometricFeatures )
+function [ mask, region_proposals ] = multiscaleSearch( image, geometricFeatures, params)
 % multiscaleSearch: Multi-scale Search over a binary image
 %
 %{
@@ -37,7 +37,7 @@ input:  - image: nxm binary image
         - geometricFeatures: from task1
 output: - mask: nxm binary image
 %}
-  debug = true;
+  debug = false;
   scale = 2;
   win = true(11);
 
@@ -87,35 +87,29 @@ output: - mask: nxm binary image
         sprintf('Checking pixel %d,%d', candidate)
       end
 
-%      try
-        region = getRegion(mask, candidate, win);
-        if ~region
-          continue
-        end
-        regions_scanned = regions_scanned + 1;
+      region = getRegion(mask, candidate, win);
+      if ~region
+        % Skip if a window cannot be centered on this pixel
+        continue
+      end
+      regions_scanned = regions_scanned + 1;
 
-        if debug
-          sprintf('Checking region %d', regions_scanned);
-        end
+      if debug
+        sprintf('Checking region %d', regions_scanned);
+      end
 
-        %Is the region centered on that pixel is a traffic sign ? [CancellingMaskAlgorithm]
-        % If the region looks like a traffic sign keep it
-        signalClass = checkRegion(region, params, geometricFeatures);
+      %Is the region centered on that pixel is a traffic sign ? [CancellingMaskAlgorithm]
+      % If the region looks like a traffic sign keep it
+      class = checkRegion(region, geometricFeatures, params);
 
-        if ~strcmp(signalClass,'X')
-          % If it seems to be an object save coordinates ...
-          pixel_proposals(p,:) = candidate;
-          p = p + 1;
+      if ~strcmp(class,'X')
+        % If it seems to be an object save coordinates ...
+        pixel_proposals(p,:) = candidate;
+        p = p + 1;
 
-          %    TRUE: Update cancelling mask for region removal => MASK
-          mask = updateMask(mask, candidate, win);
-        end
-%       catch
-%         % Skip if a window cannot be centered on this pixel
-%         if debug
-%           sprintf('(%d,%d) Skipped!', candidate)
-%         end
-%       end
+        %    TRUE: Update cancelling mask for region removal => MASK
+        mask = updateMask(mask, candidate, win);
+      end
     end
 
     if debug
