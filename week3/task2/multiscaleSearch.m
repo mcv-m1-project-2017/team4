@@ -39,10 +39,10 @@ output: - mask: nxm binary image
 %}
   debug = false;
   scale = 2;
-  win = true(11);
+  win = true(21,21);
 
   % 1. Compute LAYERS using gaussian-pyrdamid
-  layers = computeLayers(image);
+  layers = computeLayers(image, win);
 
   % 2. Generate an initial mask (half the size as first LAYER) with '1' values => MASK
   % Build a mask iteratively to remove found objects from further analysis.
@@ -58,7 +58,7 @@ output: - mask: nxm binary image
     layer = layers{n};
 
     % 3.0 Scale up the mask to match the layer
-    if n ~= 6
+    if n ~= n_layers
       mask = imresize(mask, scale);
     end
 
@@ -95,7 +95,7 @@ output: - mask: nxm binary image
       regions_scanned = regions_scanned + 1;
 
       if debug
-        sprintf('Checking region %d', regions_scanned);
+        sprintf('Checking region %d', regions_scanned)
       end
 
       %Is the region centered on that pixel is a traffic sign ? [CancellingMaskAlgorithm]

@@ -1,15 +1,14 @@
-function [ layers ] = computeLayers ( image )
+function [ layers ] = computeLayers ( image, win )
 
   plot = false;
   debug = false;
 
   % Init vars
-  window = ones(11, 11); % Must be odd to have a center pixel
   scale = 2;
 
   % Do as many scale downs as the image is 4 times the box (we expect the
   % traffic sign to be as large as 0.25 the original image.
-  minimum_size = 4 * size(window,1);
+  minimum_size = 4 * size(win,1);
 
   %% Compute scale downs' size and add some padding in order to the image is
   % multiple of 2 as many times as needed.
@@ -43,8 +42,8 @@ function [ layers ] = computeLayers ( image )
   end
 
   if plot
-    for i = (1:size(layers,2))+10
-      figure(i), imshow(layers{i});
+    for i = (1:size(layers,2))
+      figure(i+10), imshow(layers{i});
     end
   end
 

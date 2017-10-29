@@ -25,7 +25,7 @@ debug = true;
 % plot = true;
 
 %   tic
-window = ones(11, 11); % Must be odd to have a center pixel
+window = ones(21, 21); % Must be odd to have a center pixel
 
 % Compute reductions size and 0-pad the original mask in order to be multiple of
 % 2 as many times as needed. The padding is added on the right-low-most corner.
