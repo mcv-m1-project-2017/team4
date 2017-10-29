@@ -73,26 +73,26 @@ else
     minFormFactor = geometricFeatures(5);
     maxFormFactor = geometricFeatures(6);
     meanFormFactor = geometricFeatures(7);
-    stdFormFactor = geometricFeatures(8);
+    stdFormFactor = geometricFeatures(8)*1.0;
 
     % Filling ratio
     % Triangular signals
     minFillingRatio_tri = geometricFeatures(9);
     maxFillingRatio_tri = geometricFeatures(10);
     meanFillingRatio_tri = geometricFeatures(11);
-    stdFillingRatio_tri = geometricFeatures(12);
+    stdFillingRatio_tri = geometricFeatures(12)*1.0;
 
     % Circular/round signals
     minFillingRatio_circ = geometricFeatures(13);
     maxFillingRatio_circ = geometricFeatures(14);
     meanFillingRatio_circ = geometricFeatures(15);
-    stdFillingRatio_circ = geometricFeatures(16);
+    stdFillingRatio_circ = geometricFeatures(16)*1.0;
 
     % Rectangular signals
     minFillingRatio_rect = geometricFeatures(17);
     maxFillingRatio_rect = geometricFeatures(18);
     meanFillingRatio_rect = geometricFeatures(19);
-    stdFillingRatio_rect = geometricFeatures(20);
+    stdFillingRatio_rect = geometricFeatures(20)*1.0;
 
     %% Define scaling factors for the thresholds loaded above
 
@@ -117,22 +117,21 @@ else
     % Area ==> values between min/max
     % Aspect ratio/form factor ==>  in the range: mean +- X*std
     % FF (for each shape) ==> in the range: mean +- X*std
-    A_min
-    A_max
-    A_min = 0.5
-    A_max = 3
-    outIdx = find((areaCC > A_min*minArea & areaCC < A_max*maxArea) );
-        %&...
-        %(formFactorCC > meanFormFactor - AR_scaleStd*stdFormFactor &...
-        %formFactorCC < meanFormFactor + AR_scaleStd*stdFormFactor) );
-        % &...
+    areaCC
+    winsize=41*41;
+    mins=winsize*0.3;
+    maxs=winsize*1.0;
+    outIdx = find((areaCC > mins & areaCC < maxs) );% &...
+    %outIdx = find((areaCC > A_min*minArea & areaCC < A_max*maxArea) );% &...
+        % (formFactorCC > meanFormFactor - AR_scaleStd*stdFormFactor &...
+        % formFactorCC < meanFormFactor + AR_scaleStd*stdFormFactor) &...
         % ((fillRatioCC > meanFillingRatio_tri - FF_tri_scaleStd*stdFillingRatio_tri &...
         % fillRatioCC < meanFillingRatio_tri + FF_tri_scaleStd*stdFillingRatio_tri) |...
         % (fillRatioCC > meanFillingRatio_circ - FF_circ_scaleStd*stdFillingRatio_circ &...
         % fillRatioCC < meanFillingRatio_circ + FF_circ_scaleStd*stdFillingRatio_circ) |...
         % fillRatioCC > meanFillingRatio_rect - FF_rect_scaleStd*stdFillingRatio_rect &...
         % fillRatioCC < meanFillingRatio_rect + FF_rect_scaleStd*stdFillingRatio_rect));
-        %
+
     % Only retain those CC that fulfil the above conditions
     % if(isempty(outIdx)) % We have erased any possible detection, revert
     %     % back to the morphological filtered output

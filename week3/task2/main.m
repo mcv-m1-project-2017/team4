@@ -13,7 +13,7 @@ mkdir(tmpPath)
 inputMasks = dir(fullfile(inputMasksPath, '*.png'));
 gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 
-plot = true;
+plot = false;
 
 % Load some parameters from task1
 paramsFile = fullfile('..', 'task1', 'GeometricalConstraints_params.mat');
@@ -23,7 +23,8 @@ load(GeometricFeaturesFile, 'geometricFeatures');
 
 
 % FIXME change the next line for this one:
-for i = 11:size(inputMasks,1)
+for i = 1:size(inputMasks,1)
+% for i = 11:3:14
   sprintf('Checking mask %d', i)
   inputMaskObject = inputMasks(i);
   inputMaskPath = fullfile(inputMaskObject.folder, inputMaskObject.name);
@@ -37,11 +38,24 @@ for i = 11:size(inputMasks,1)
 
   % DO ALL THE MAGIC HERE
   [cancellingMask, regionProposal] = multiscaleSearch(iMask, geometricFeatures, params);
+
+  % Save mask
+  oMaskPath = fullfile(tmpPath, inputMaskObject.name);
+  sprintf('Writing in %s', oMaskPath)
   oMask = iMask & ~cancellingMask;
+  imwrite(oMask, oMaskPath);
+
+  % Save regions
+  name = split(inputMaskObject.name, '.png');
+  name = name{1};
+  region_path = fullfile(tmpPath, strcat(name, '.mat'));
+  save(region_path, 'regionProposal');
+
+%  [evalParams_pixel, evalParams_window] = eval('nodebug', 'validation', 99 )
 
   if plot % && mod(i,3) == 0
     pause(1)
-    figure(1);
+    figure('Name',sprintf('Mask %d', i));
     % Show input mask
     subplot(2,2,1);
     imshow(iMask,[]);

@@ -50,7 +50,7 @@ output: - mask: nxm binary image
   mask = true(size(layers{end}));
   % 3. For each LAYER (starting with the smallest one)
   %% Starting from the smaller layer find a traffic sign
-  n_layers = size(layers,2);
+  n_layers = size(layers,2)
   for n = n_layers:-1:1
     if debug
       sprintf('Processing layer number: %d', n)

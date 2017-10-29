@@ -25,16 +25,17 @@ output: - class: Signal classified in one of the 6 signal groups
 %       class = 'X';
 %   end
 
-[CC, CC_stats] = computeCC_regionProps(region);
-[~, ~, isSignal] = applyGeometricalConstraints(region, CC, CC_stats, geometricFeatures, params);
+% [CC, CC_stats] = computeCC_regionProps(region);
+% [~, ~, isSignal] = applyGeometricalConstraints(region, CC, CC_stats, geometricFeatures, params);
+  isSignal = sum(region(:)) > 161*161 * 0.76;
 
-if isSignal
-  sprintf('Signal found')
-end
+  if isSignal
+    sprintf('Signal found')
+  end
 
-if isSignal
-  class = 'A';
-else
-  class = 'X';
+  if isSignal
+    class = 'A';
+  else
+    class = 'X';
 
 end
