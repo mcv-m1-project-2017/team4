@@ -15,6 +15,13 @@ gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 
 plot = true;
 
+% Load some parameters from task1
+paramsFile = fullfile('..', 'task1', 'GeometricalConstraints_params.mat');
+GeometricFeaturesFile = fullfile('..', 'task1', 'GeometricFeatures_train.mat');
+load(paramsFile, 'params');
+load(GeometricFeaturesFile, 'geometricFeatures');
+
+
 % FIXME change the next line for this one:
 for i = 1:size(inputMasks,1)
 % for i = 1:1
@@ -29,7 +36,7 @@ for i = 1:size(inputMasks,1)
   gtMask = gtMask > 0;
 
   % DO ALL THE MAGIC HERE
-  cancellingMask = multiscaleSearch(iMask);
+  cancellingMask = multiscaleSearch(iMask, params, geometricFeatures);
   % FIXME check the next operation
   oMask = iMask & cancellingMask;
 

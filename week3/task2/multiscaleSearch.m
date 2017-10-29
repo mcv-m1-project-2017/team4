@@ -1,4 +1,4 @@
-function [ mask, region_proposals ] = multiscaleSearch( image )
+function [ mask, region_proposals ] = multiscaleSearch( image, params, geometricFeatures )
 % multiscaleSearch: Multi-scale Search over a binary image
 %
 %{
@@ -33,6 +33,8 @@ Multi-scale Search algorithm
 NOTE this algorithm can be improved removing pixel candidates while removing region
 
 input:  - image: nxm binary image
+        - params: from task1
+        - geometricFeatures: from task1
 output: - mask: nxm binary image
 %}
   debug = false;
@@ -94,7 +96,7 @@ output: - mask: nxm binary image
 
         %Is the region centered on that pixel is a traffic sign ? [CancellingMaskAlgorithm]
         % If the region looks like a traffic sign keep it
-        signalClass = checkRegion(region, 0);
+        signalClass = checkRegion(region, params, geometricFeatures);
 
         if ~strcmp(signalClass,'X')
           % If it seems to be an object save coordinates ...
