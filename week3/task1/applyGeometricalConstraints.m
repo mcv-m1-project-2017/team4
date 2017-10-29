@@ -38,12 +38,12 @@ function [constrainedMask, listBBs, isSignal] = applyGeometricalConstraints(filt
 %   Ferran Pérez
 %   Master in Computer Vision
 %   Computer Vision Center, Barcelona
-% 
+%
 %   Project M1/Block3
 %   -----------------
 
 %% Allocate outputs and check if any CC have been detected
-listBBs = [];
+listBBs = struct([]);
 isSignal = zeros(size(CC_stats,1), 1);
 if (isempty(CC_stats))
     % Can't restrict on area, filling or form factor, blank mask.
@@ -99,7 +99,7 @@ else
     % Area
     A_min = params(1);
     A_max = params(2);
-
+    
     % Aspect ratio:
     AR_scaleStd = params(3);
     
@@ -109,33 +109,33 @@ else
     % Circular
     FF_circ_scaleStd = params(5);
     % Rectangular
-    FF_rect_scaleStd = params(6);    
+    FF_rect_scaleStd = params(6);
     
     %% Apply the thresholding and retain only CC's that fulfil them
     
-    % Models used: 
+    % Models used:
     % Area ==> values between min/max
     % Aspect ratio/form factor ==>  in the range: mean +- X*std
     % FF (for each shape) ==> in the range: mean +- X*std
     
-        outIdx = find((areaCC > A_min*minArea & areaCC < A_max*maxArea) &...
-            (formFactorCC > meanFormFactor - AR_scaleStd*stdFormFactor &...
-            formFactorCC < meanFormFactor + AR_scaleStd*stdFormFactor) &...
-            ((fillRatioCC > meanFillingRatio_tri - FF_tri_scaleStd*stdFillingRatio_tri &...
-            fillRatioCC < meanFillingRatio_tri + FF_tri_scaleStd*stdFillingRatio_tri) |...
-            (fillRatioCC > meanFillingRatio_circ - FF_circ_scaleStd*stdFillingRatio_circ &...
-            fillRatioCC < meanFillingRatio_circ + FF_circ_scaleStd*stdFillingRatio_circ) |...
-            fillRatioCC > meanFillingRatio_rect - FF_rect_scaleStd*stdFillingRatio_rect &...
-            fillRatioCC < meanFillingRatio_rect + FF_rect_scaleStd*stdFillingRatio_rect));
-        
+    outIdx = find((areaCC > A_min*minArea & areaCC < A_max*maxArea) &...
+        (formFactorCC > meanFormFactor - AR_scaleStd*stdFormFactor &...
+        formFactorCC < meanFormFactor + AR_scaleStd*stdFormFactor) &...
+        ((fillRatioCC > meanFillingRatio_tri - FF_tri_scaleStd*stdFillingRatio_tri &...
+        fillRatioCC < meanFillingRatio_tri + FF_tri_scaleStd*stdFillingRatio_tri) |...
+        (fillRatioCC > meanFillingRatio_circ - FF_circ_scaleStd*stdFillingRatio_circ &...
+        fillRatioCC < meanFillingRatio_circ + FF_circ_scaleStd*stdFillingRatio_circ) |...
+        fillRatioCC > meanFillingRatio_rect - FF_rect_scaleStd*stdFillingRatio_rect &...
+        fillRatioCC < meanFillingRatio_rect + FF_rect_scaleStd*stdFillingRatio_rect));
+    
     % Only retain those CC that fulfil the above conditions
     if(isempty(outIdx)) % We have erased any possible detection, revert
         % back to the morphological filtered output
         constrainedMask = filteredMask;
-        % Generate output structure
-        for cc = 1:size(CC_stats,1)
-            listBBs = [listBBs, mat2cell(CC_stats(cc).BoundingBox, 1, 4)];
-        end
+        % Generate output struct with the following format:
+        % fields: 'x', 'y', 'w' and 'h' (top-left x & y, width and height)
+        % One line per CC
+        [listBBs] = createListOfWindows(CC_stats);
         % 'reverting' is equal to saying that I believe my detections can
         % be signal, hence isSignal = 1 for those CC idx'.
         isSignal(:, 1) = 1;
@@ -146,10 +146,8 @@ else
         CC_constrMask = bwconncomp(constrainedMask);
         CC_constrMask_stats = regionprops(CC_constrMask, 'BoundingBox');
         % Generate output structure (I cannot think of a method w/o for loop..)
-        for cc = 1:size(CC_constrMask_stats,1)
-            listBBs = [listBBs, mat2cell(CC_constrMask_stats(cc).BoundingBox, 1, 4)];
-        end
+        [listBBs] = createListOfWindows(CC_constrMask_stats);
         % Only the CC with indices in the outIdx are believed to be signals
-        isSignal(outIdx, 1) = 1;   
-    end  
+        isSignal(outIdx, 1) = 1;
+    end
 end

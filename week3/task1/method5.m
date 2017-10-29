@@ -18,16 +18,17 @@ output:- filteredMmask: the masks filtered with morphological operators from the
 % morphFilterMask_method4_test for more info.
 
 %Filter small pixels out of bright or dark areas (noise filtering)
-SE = strel('disk',3);
-filteredMask = imopen(mask, SE);
-filteredMask = imclose(filteredMask, SE);
+
+% SE = strel('disk',3);
+% filteredMask = imopen(filteredMask, SE);
+% filteredMask = imclose(filteredMask, SE);
 
 %Close triangular signals
 % SE = strel('diamond',30);
 % filteredMask = imclose(filteredMask, SE);
 % Close signals:
-filteredMask = imclose(filteredMask, strel('rectangle', [3,7]));
-filteredMask = imfill(filteredMask, 'holes');
+filteredMask = imclose(mask, strel('rectangle', [3,7]));
+filteredMask = imfill(mask, 'holes');
 filteredMask = imclose(filteredMask, strel('disk',30));
 
 
