@@ -24,22 +24,23 @@ load(GeometricFeaturesFile, 'geometricFeatures');
 
 % FIXME change the next line for this one:
 for i = 1:size(inputMasks,1)
-% for i = 1:1
+  sprintf('Checking mask %d', i)
   inputMaskObject = inputMasks(i);
   inputMaskPath = fullfile(inputMaskObject.folder, inputMaskObject.name);
   iMask = imread(inputMaskPath);
 
-  gtMaskObject = gtMasks(1);
+  gtMaskObject = gtMasks(i);
   gtMaskPath = fullfile(gtMaskObject.folder, gtMaskObject.name);
   gtMask = imread(gtMaskPath);
   % Convert it to logical (faster)
   gtMask = gtMask > 0;
 
   % DO ALL THE MAGIC HERE
-  cancellingMask = multiscaleSearch(iMask, params, geometricFeatures);
-  % FIXME check the next operation
+  [cancellingMask, regionProposal] = multiscaleSearch(iMask, params, geometricFeatures);
+  size(regionProposal)
   oMask = iMask & cancellingMask;
 
+  plot = true
   if plot
     figure(1);
     % Show input mask
@@ -53,10 +54,16 @@ for i = 1:size(inputMasks,1)
     title('GroundTruth mask');
 
     % Show output mask
-    subplot(2,1,2);
+    subplot(2,2,3);
     imshow(oMask,[]);
     title('Output mask');
-    plot = false;
+    %plot = false;
+
+    % Show output mask
+    subplot(2,2,4);
+    imshow(cancellingMask,[]);
+    title('cancelling mask');
+    %plot = false;
   end
 
 end

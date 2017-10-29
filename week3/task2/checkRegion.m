@@ -1,4 +1,4 @@
-function class = checkRegion( region, geometricFeatures, params )
+function [ class ] = checkRegion( region, geometricFeatures, params )
 %{
 Jonatan Poveda
 Martí Cobos
@@ -25,8 +25,9 @@ output: - class: Signal classified in one of the 6 signal groups
 %       class = 'X';
 %   end
 
-[CC, ~] = computeCC_regionProps(region);
+[CC, CC_stats] = computeCC_regionProps(region);
 [~, ~, isSignal] = applyGeometricalConstraints(region, CC, CC_stats, geometricFeatures, params);
+isSignal
 
 if isSignal
   class = 'A';

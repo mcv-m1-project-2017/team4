@@ -37,7 +37,7 @@ input:  - image: nxm binary image
         - geometricFeatures: from task1
 output: - mask: nxm binary image
 %}
-  debug = false;
+  debug = true;
   scale = 2;
   win = true(11);
 
@@ -81,13 +81,17 @@ output: - mask: nxm binary image
     regions_scanned = 0;
 
     for j = 1:size(candidates,1)
-      if debug
-        sprintf('Checking pixel %d', pixel)
-      end
 
       candidate = candidates(j,:);
-      try
+      if debug
+        sprintf('Checking pixel %d,%d', candidate)
+      end
+
+%      try
         region = getRegion(mask, candidate, win);
+        if ~region
+          continue
+        end
         regions_scanned = regions_scanned + 1;
 
         if debug
@@ -101,17 +105,17 @@ output: - mask: nxm binary image
         if ~strcmp(signalClass,'X')
           % If it seems to be an object save coordinates ...
           pixel_proposals(p,:) = candidate;
-          i = p + 1;
+          p = p + 1;
 
           %    TRUE: Update cancelling mask for region removal => MASK
           mask = updateMask(mask, candidate, win);
         end
-      catch
-        % Skip if a window cannot be centered on this pixel
-        if debug
-          sprintf('(%d,%d) Skipped!', c(1), c(2))
-        end
-      end
+%       catch
+%         % Skip if a window cannot be centered on this pixel
+%         if debug
+%           sprintf('(%d,%d) Skipped!', candidate)
+%         end
+%       end
     end
 
     if debug
