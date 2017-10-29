@@ -1,7 +1,7 @@
 function [ layers ] = computeLayers ( image )
 
   plot = false;
-  debug = true;
+  debug = false;
 
   % Init vars
   window = ones(11, 11); % Must be odd to have a center pixel
@@ -22,8 +22,11 @@ function [ layers ] = computeLayers ( image )
     layer_size = ceil(layer_size / scale);
   end
   padded_size = layer_size * scale^(i-1);
-  sprintf('Scaling mask from %dx%d to %dx%d', ...
-          original_size(1), original_size(2), padded_size(1), padded_size(2))
+
+  if debug
+    sprintf('Scaling mask from %dx%d to %dx%d', ...
+            original_size(1), original_size(2), padded_size(1), padded_size(2))
+  end
 
   % 0-Padding is added to the rightest column and lowest row. This padding would
   % not affect to the mask because we are retreving 1-valued pixels.

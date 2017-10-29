@@ -2,7 +2,7 @@
 addpath(genpath('..'));
 
 % Set paths
-dataset = 'train';
+dataset = 'validation';
 root = '../../../';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
@@ -16,8 +16,8 @@ gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 plot = true;
 
 % FIXME change the next line for this one:
-% for i = 1:size(inputMasks,1)
-for i = 1:1
+for i = 1:size(inputMasks,1)
+% for i = 1:1
   inputMaskObject = inputMasks(i);
   inputMaskPath = fullfile(inputMaskObject.folder, inputMaskObject.name);
   iMask = imread(inputMaskPath);
