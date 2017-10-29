@@ -18,7 +18,7 @@ plot = false;
 ts = [];
 
 %% Example code
-for i = 1:4 %size(inputMasks)
+for i = 1:size(inputMasks)
   i
   inputMaskObject = inputMasks(i);
   inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
