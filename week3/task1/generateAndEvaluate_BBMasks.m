@@ -291,7 +291,7 @@ if (evaluateWindow)
             % Save results to .mat (dataset path)
             datasetPath = strrep(resultFolder,['method', num2str(method_num)], '');
             matName = strcat(datasetPath, '/Window-based_results_method', num2str(method_num), '.mat');
-            save(matName, 'evaluationParameters');
+            save(matName, 'evalParams_window');
         end
     end
 end
