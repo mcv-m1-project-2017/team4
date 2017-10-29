@@ -44,7 +44,7 @@ root = fileparts(fileparts(fileparts(pwd)));
 path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
 %Get image files
-files = dir( strcat(path, '/*.jpg') );
+files = dir(strcat(path, '/*.jpg'));
 
 % ----TEST DIFFERENT THRESHOLDS FOR AREA, ASPECT RATIO AND FILLING RATIO---
 %   - Thresholds based on the max, min, mean and std of each feature
@@ -102,28 +102,31 @@ for i = 1:size(files)
     tic;
     %Apply HSV color segmentation to generate image mask
     segmentationMask = colorSegmentation(image);
-    
-    %Apply morphlogical operators to improve mask
-    % Method 5
-    %     filteredMask = method5(segmentationMask);
-    %     filteredMask = method5_geometricalConstraints(filteredMask,...
-    %         geometricFeatures, idx);
-    % Test simplest yet effective method 1 (the best for test)
-    
+    if (isempty(find(segmentationMask(segmentationMask > 0), 1)))
+        warning(['The colour segmentation found 0 candidates!\n'
+            'This will add a considerable amount of TN pixels and at least one TN (region) detection\n']);
+    end
+    % Make sure that we do not lose all detections through filtering (**)
+    % Apply morphlogical operators to improve mask
+    % <Change this method for yours>
     filteredMask = imfill(segmentationMask, 'holes');
-    filteredMask_2 = imopen(filteredMask, strel('square', 20));
-    %         filteredMask_2 = imclose(filteredMask_2, strel('disk',2));
-    % EXPERIMENTAL: opening by reconstruction of erosion (SAME RESULTS)
-    %             marker = imerode(filteredMask, strel('square', 15));
-    %             mask = filteredMask;
-    %             filteredMask = imreconstruct(marker, mask);
-%     filteredMask_3 = method5_geometricalConstraints(filteredMask_2,...
-%         geometricFeatures, params);%vecMinArea(p), vecMaxArea(p), vecStdAR(p));%,0,0,0);%vec_FR_tri(p), vec_FR_circ(p), vec_FR_circ(p));
-    %filteredMask = imclose(filteredMask, strel('disk', 3));
-    [CC, CC_stats] = computeCC_regionProps(filteredMask_2);
-    [filteredMask_3, windowCandidates, isSignal] = applyGeometricalConstraints(filteredMask_2,...
-    CC, CC_stats, geometricFeatures, params);
+    if (isempty(find(filteredMask(filteredMask > 0), 1)))   % (**)
+        % Revert back to the colour segmentation (better to have a possible
+        % signal (although it may be a FP) than a FN rightoutaway
+        filteredMask = segmentationMask;
+    end
+    filteredMask2 = imopen(filteredMask, strel('square', 20));
+    if (isempty(find(filteredMask2(filteredMask2 > 0), 1))) % (**)
+        % Same logic as above
+        filteredMask2 = filteredMask;
+    end
     
+    % Apply geometrical constraints to lower the number of FPs
+    
+    [CC, CC_stats] = computeCC_regionProps(filteredMask2);
+    % This function internally checks the conditions put above (**)
+    [filteredMask3, windowCandidates, isSignal] = applyGeometricalConstraints(filteredMask2,...
+        CC, CC_stats, geometricFeatures, params);
     
     %Compute time per frame
     time = toc;
@@ -148,7 +151,7 @@ for i = 1:size(files)
     
     %Compute image TP, FP, FN, TN
     pixelAnnotation = imread(strcat(path, '/mask/mask.', files(i).name(1:size(files(i).name,2)-3), 'png'))>0;
-    [localPixelTP, localPixelFP, localPixelFN, localPixelTN] = PerformanceAccumulationPixel(filteredMask_3, pixelAnnotation);
+    [localPixelTP, localPixelFP, localPixelFN, localPixelTN] = PerformanceAccumulationPixel(filteredMask3, pixelAnnotation);
     pixelTP = pixelTP + localPixelTP;
     pixelFP = pixelFP + localPixelFP;
     pixelFN = pixelFN + localPixelFN;
@@ -156,7 +159,7 @@ for i = 1:size(files)
     
 end
 
-%Compute algorithm precision, accuracy, specificity, recall and fmeasure
+% Compute algorithm precision, accuracy, specificity, recall and fmeasure
 [pixelPrecision, pixelAccuracy, pixelSpecificity, pixelRecall] = PerformanceEvaluationPixel(pixelTP, pixelFP, pixelFN, pixelTN);
 FMeasure = 2*(pixelPrecision*pixelRecall)/(pixelPrecision+pixelRecall);
 total = pixelTP + pixelFP + pixelFN + pixelTN;
