@@ -46,5 +46,4 @@ function [ layers ] = computeLayers ( image, win )
       figure(i+10), imshow(layers{i});
     end
   end
-  die()
 end

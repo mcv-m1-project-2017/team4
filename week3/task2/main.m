@@ -27,11 +27,11 @@ for i = 1:size(inputMasks,1)
 % for i = 11:3:14
   sprintf('Checking mask %d', i)
   inputMaskObject = inputMasks(i);
-  inputMaskPath = fullfile(inputMaskObject.folder, inputMaskObject.name);
+  inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
   iMask = imread(inputMaskPath);
 
   gtMaskObject = gtMasks(i);
-  gtMaskPath = fullfile(gtMaskObject.folder, gtMaskObject.name);
+  gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
   gtMask = imread(gtMaskPath);
   % Convert it to logical (faster)
   gtMask = gtMask > 0;
@@ -46,7 +46,7 @@ for i = 1:size(inputMasks,1)
   imwrite(oMask, oMaskPath);
 
   % Save regions
-  name = split(inputMaskObject.name, '.png');
+  name = strsplit(inputMaskObject.name, '.png');
   name = name{1};
   region_path = fullfile(tmpPath, strcat(name, '.mat'));
   save(region_path, 'regionProposal');
