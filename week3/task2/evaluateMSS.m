@@ -40,7 +40,7 @@ function [evalParams_pixel, evalParams_window] = evaluateMSS(mode, dataset, meth
 addpath(genpath('../../../'));
 
 % Configuration (evaluation types and toggle plots on/off)
-evaluatePixel = false;
+evaluatePixel = true;
 evaluateWindow = true;
 
 plotImgs = false;
@@ -127,9 +127,23 @@ for i = 1:size(files,1)
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
             CC, CC_stats, geometricFeatures, params);
     elseif (method_num == 99)
-	% Multiscale searcho
-
-        [isSignal] = checkRegion(filteredMask)
+        %% BLOCK COPIED FROM method_num==2
+        [filteredMask2]= method5(segmentationMask);
+        if (isempty(find(filteredMask2(filteredMask2 > 0), 1)))
+            filteredMask2 = segmentationMask;
+        end
+        % Apply geometrical constraints to lower the number of FPs
+        [CC, CC_stats] = computeCC_regionProps(filteredMask2);
+        % This function internally checks the conditions put above (**)
+        [filteredMask3, windowCandidates, ~] = applyGeometricalConstraints(filteredMask2,...
+            CC, CC_stats, geometricFeatures, params);
+        filteredMask = filteredMask3;
+      	
+        %% Multiscale search
+        windowCandidates = mss_test(filteredMask)
+        %[isSignal] = checkRegion(filteredMask)
+    else
+      error('Wrong method number')
     end
 
     % Evaluation
