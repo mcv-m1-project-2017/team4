@@ -1,4 +1,4 @@
-function [evalParams_pixel, evalParams_window] = eval(mode, dataset, method_num)
+function [evalParams_pixel, evalParams_window] = evaluateMSS(mode, dataset, method_num)
 % GENERATEANDEVALUATE_BBMASKS: process images in 'dataset' to evaluate the
 % performance of the method number 'method_num' and store the detection
 % windows and pixel masks generated.
@@ -63,7 +63,7 @@ path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
 % Method 1 ==> CCL
 % Method 2, 3 and 4 (sliding window: 'standard', 'integral', 'convolution'
-resultFolder =  fullfile(root, 'm1-results', 'week3', dataset,...
+resultFolder =  fullfile(root, 'm1-results', 'week3', 'results', dataset,...
     ['method', num2str(method_num)]);
 
 % Get image files
@@ -126,6 +126,10 @@ for i = 1:size(files,1)
         [CC, CC_stats] = computeCC_regionProps(filteredMask);
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
             CC, CC_stats, geometricFeatures, params);
+    elseif (method_num == 99)
+	% Multiscale searcho
+
+        [isSignal] = checkRegion(filteredMask)
     end
 
     % Evaluation

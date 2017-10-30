@@ -51,8 +51,6 @@ for i = 1:size(inputMasks,1)
   region_path = fullfile(tmpPath, strcat(name, '.mat'));
   save(region_path, 'regionProposal');
 
-%  [evalParams_pixel, evalParams_window] = eval('nodebug', 'validation', 99 )
-
   if plot % && mod(i,3) == 0
     pause(1)
     figure('Name',sprintf('Mask %d', i));
@@ -78,5 +76,7 @@ for i = 1:size(inputMasks,1)
     title('cancelling mask');
     %plot = false;
   end
+
+  [evalParams_pixel, evalParams_window] = evaluateMSS('nodebug', 'validation', 99)
 
 end
