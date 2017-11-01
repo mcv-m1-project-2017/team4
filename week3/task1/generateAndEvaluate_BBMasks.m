@@ -111,6 +111,7 @@ for i = 1:size(files,1)
         %         end
         % Apply geometrical constraints to lower the number of FPs
         [CC, CC_stats] = computeCC_regionProps(filteredMask2);
+        
         % This function internally checks the conditions put above (**)
         [filteredMask3, windowCandidates, ~] = applyGeometricalConstraints(filteredMask2,...
             CC, CC_stats, geometricFeatures, params);
@@ -177,6 +178,9 @@ for i = 1:size(files,1)
     if (evaluateWindow)
         if (strcmp(dataset, 'test'))
             fprintf('evaluateWindow: the ''test'' set cannot be evaluated (no GT labels)\n');
+            if (size(windowCandidates,1) > 1 || size(windowCandidates,2) > 1)
+                fprintf('debug here\n');
+            end
         else
             % Load annotations (from txt file defining GT' bounding boxes)
             gtFile = strcat(path, '/gt/gt.', strrep(files(i).name, 'jpg', 'txt'));
