@@ -12,7 +12,7 @@ dataset = 'validation';%'train';%'validation';%'train';%'validation';%'train';%'
 % Otherwise run 'validation' for top 10 parameters
 % of last train. Define the top X run through
 % validation.
-test_num = 5;
+test_num = 7;
 method_num = 1;
 top = 10;
 
@@ -30,7 +30,7 @@ if (strcmp(dataset, 'train'))
     %  Compute nº of combinations and define parameters values
     % load('GeometricFeatures_train.mat')
     
-    valuesPerParameter = [5,5];
+    valuesPerParameter = [10];
     %tweakedParameters = 3;
     %numCombinations = valuesPerParameter^(tweakedParameters);
     numCombinations = prod(valuesPerParameter);
@@ -79,14 +79,15 @@ if (strcmp(dataset, 'train'))
     % Filling ratio
     % -------------
 %         testFR_tri = linspace(4, 5, valuesPerParameter(3));%[4, 4.25, 5];
-        testFR_circ = linspace(4, 5, valuesPerParameter(1));%[4.5, 4.75, 5];
-        testFR_rect = linspace(4, 5, valuesPerParameter(2));%[4.5, 4.75, 5];
-    
+%         testFR_circ = linspace(4, 5, valuesPerParameter(1));%[4.5, 4.75, 5];
+        testFR_rect = linspace(4, 5, valuesPerParameter(1));%[4.5, 4.75, 5];
+%     FR_circ = testFR_circ;
+FR_rect = testFR_rect;
     % Testing values (NDGRID)
     %     [FR_triangle, FR_circ, FR_rect] = meshgrid(testFR_tri, testFR_circ, testFR_rect);
     %
-        [FR_circ, FR_rect] = meshgrid(testFR_circ, testFR_rect);
-    FR_circ = FR_circ(:); FR_rect = FR_rect(:);
+%         [FR_circ, FR_rect] = meshgrid(testFR_circ, testFR_rect);
+%     FR_circ = FR_circ(:); FR_rect = FR_rect(:);
 %     [vecMinArea, vecMaxArea, FR_triangle] = meshgrid(testMinArea_thr,...
 %         testMaxArea_thr, testFR_tri);
 %     vecMinArea = vecMinArea(:); vecMaxArea = vecMaxArea(:);
@@ -95,7 +96,7 @@ if (strcmp(dataset, 'train'))
     % Optimum values (for now):
     FR_triangle = ones(numCombinations,1) * 5;
     %     FR_triangle = testFR_tri;
-%     FR_circ = ones(numCombinations,1) * 4.5;
+    FR_circ = ones(numCombinations,1) * 4.5;
 %     %     FR_circ = testFR_circ;
 %     FR_rect = ones(numCombinations,1) * 4.5;
     
