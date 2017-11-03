@@ -128,13 +128,26 @@ else
         (fillRatioCC > meanFillingRatio_rect - FF_rect_scaleStd*stdFillingRatio_rect &...
         fillRatioCC < meanFillingRatio_rect + FF_rect_scaleStd*stdFillingRatio_rect)));
     
-    constrainedMask = ismember(labelmatrix(CC), outIdx);
-    
-    % Compute new CCs for 'constrainedMask'
-    CC_constrMask = bwconncomp(constrainedMask);
-    CC_constrMask_stats = regionprops(CC_constrMask, 'BoundingBox');
-    % Generate output structure (I cannot think of a method w/o for loop..)
-    [listBBs] = createListOfWindows(CC_constrMask_stats);
-    % Only the CC with indices in the outIdx are believed to be signals
-    isSignal(outIdx, 1) = 1;
+    % Only retain those CC that fulfil the above conditions
+    if(isempty(outIdx)) % We have erased any possible detection, revert
+        % back to the morphological filtered output
+        constrainedMask = filteredMask;
+        % Generate output struct with the following format:
+        % fields: 'x', 'y', 'w' and 'h' (top-left x & y, width and height)
+        % One line per CC
+        [listBBs] = createListOfWindows(CC_stats);
+        % 'reverting' is equal to saying that I believe my detections can
+        % be signal, hence isSignal = 1 for those CC idx'.
+        isSignal(:, 1) = 1;
+    else
+        constrainedMask = ismember(labelmatrix(CC), outIdx);
+        
+        % Compute new CCs for 'constrainedMask'
+        CC_constrMask = bwconncomp(constrainedMask);
+        CC_constrMask_stats = regionprops(CC_constrMask, 'BoundingBox');
+        % Generate output structure (I cannot think of a method w/o for loop..)
+        [listBBs] = createListOfWindows(CC_constrMask_stats);
+        % Only the CC with indices in the outIdx are believed to be signals
+        isSignal(outIdx, 1) = 1;
+    end
 end

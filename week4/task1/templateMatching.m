@@ -1,6 +1,5 @@
-function [evalParams_pixel, evalParams_window] =...
-    generateAndEvaluate_BBMasks(mode, geometricFeatures, params, dataset, method_num)
-% GENERATEANDEVALUATE_BBMASKS: process images in 'dataset' to evaluate the
+function [evalParams_pixel, evalParams_window] = templateMatching(mode, geometricFeatures, params, dataset, method_num)
+% templateMatching: process images in 'dataset' to evaluate the
 % performance of the method number 'method_num' and store the detection
 % windows and pixel masks generated.
 %
@@ -41,7 +40,7 @@ function [evalParams_pixel, evalParams_window] =...
 %   Master in Computer Vision
 %   Computer Vision Center, Barcelona
 %
-%   Project M1/Block3
+%   Project M1/Block4
 %   -----------------
 
 %% Initialization
@@ -67,7 +66,7 @@ end
 
 % Define root
 root = fileparts(fileparts(fileparts(pwd)));
-path = fullfile(root, 'datasets', 'trafficsigns', dataset);
+path = fullfile(root, 'datasets', 'trafficsigns', 'split',dataset);
 
 % Method 1 ==> CCL
 % Method 2, 3 and 4 (sliding window: 'standard', 'integral', 'convolution'
@@ -99,12 +98,20 @@ for i = 1:size(files,1)
     % <Insert your method as a new 'elseif' condition>
     if (method_num == 1)
         filteredMask = imfill(segmentationMask, 'holes');
-  
+        %         if (isempty(find(filteredMask(filteredMask > 0), 1)))   % (**)
+        %             % Revert back to the colour segmentation (better to have a possible
+        %             % signal (although it may be a FP) than a FN rightoutaway
+        %             filteredMask = segmentationMask;
+        %         end
         filteredMask2 = imopen(filteredMask, strel('square', 20));
-
+        %         if (isempty(find(filteredMask2(filteredMask2 > 0), 1))) % (**)
+        %             % Same logic as above
+        %             filteredMask2 = filteredMask;
+        %         end
         % Apply geometrical constraints to lower the number of FPs
         [CC, CC_stats] = computeCC_regionProps(filteredMask2);
         
+        % This function internally checks the conditions put above (**)
         [filteredMask3, windowCandidates, ~] = applyGeometricalConstraints(filteredMask2,...
             CC, CC_stats, geometricFeatures, params);
         filteredMask = filteredMask3;
@@ -128,6 +135,11 @@ for i = 1:size(files,1)
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
             CC, CC_stats, geometricFeatures, params);
     end
+    
+     %Apply template matching to the generated masks
+    [filteredMask, windowCandidates] = applyTemplateMatching(filteredMask, windowCandidates);
+    %[filteredMask, windowCandidates] = applyTemplateMatching_train(filteredMask, windowCandidates,path,files(i).name(1:size(files(i).name,2)-3));
+    
     
     % Evaluation
     if(evaluatePixel)
