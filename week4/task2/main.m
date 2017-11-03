@@ -1,5 +1,5 @@
 % Task 2: Template matching using Distance Transform and chamfer distance
-plot = true;
+do_plots = true;
 
 % Add repository functions to path
 addpath(genpath('..'));
@@ -30,7 +30,7 @@ for i = 1:1
   gtMask = gtMask > 0;
 
   % DO ALL THE MAGIC HERE
-  iMask = zeros(400,400); iMask(50:159, 100:199)=1;
+  iMask = zeros(400,400); iMask(50:149, 100:199)=1; iMask(200:299, 200:299)=1;
   featureMask = edge(iMask,'Canny');
   template = ones(100,100);
   template([1,end],:)=0; template(:,[1,end])=0;
@@ -39,7 +39,8 @@ for i = 1:1
   transformedMask = distanceTransform(paddedMask);
 
   template = edge(template, 'Canny')+0;
-  correlated = xcorr2(transformedMask, template);
+  correlated = xcorr2(template, transformedMask);
+  %correlated = normxcorr2(template, transformedMask);
   border = size(template,1);
   correlated = correlated(border:(end-border), border:(end-border));
   correlated = correlated./max(correlated(:));
@@ -49,7 +50,26 @@ for i = 1:1
   %c = c > 0.9;
   %cor(cor<0.01)=255;
   %cor = int16(cor);
-  c = c*255;
+  %c = c*255;
+  min(c(:)), max(c(:))
+  %se = ones(3);
+  se = strel('disk',3);
+  %se = ones(3,1);
+  % se = [0 1 0;
+  %       1 1 1;
+  %       0 1 0];
+  se = ones(1,3);
+  betterC = imbothat(c, se);
+  betterC = imtophat(betterC, se');
+  betterC = betterC ./ max(betterC);
+  min(betterC(:)), max(betterC(:))
+
+  bestC = c;
+  positions = extractLocalMinima(bestC);
+  % for i = 1:size(positions, 1)
+  %
+  % end % for
+  % %c(c==min(c(:)))=256;
   %[min(c(:)),   max(c(:))]
 
   % Save mask
@@ -64,7 +84,7 @@ for i = 1:1
   % region_path = fullfile(tmpPath, strcat(name, '.mat'));
   % save(region_path, 'regionProposal');
 
-  if plot
+  if do_plots
     figure(1)
 %     figure('Name',sprintf('Mask %d', i));
     % Show input mask
@@ -96,9 +116,12 @@ for i = 1:1
 
     % Show ground truth mask
     subplot(2,3,6);
-    imshow(c,jet(256));
+    imshow(c*256,hsv(256));
     title('cor mask');
-    colormap('jet');
+
+    figure(2), subplot(2,1,1), imshow(c, []);
+    subplot(2,1,2), imshow(betterC, []);
+
   end
 
 end
