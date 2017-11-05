@@ -5,10 +5,10 @@ do_plots = true;
 addpath(genpath('..'));
 
 % Set paths
-dataset = 'train';
-root = '../../../';
-inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
-groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
+% inputMasksPath = fullfile(root, 'm1-results', 'week3', 'm1', dataset);
+inputMasksPath = fullfile(root, 'm1-results', 'week3', 'm1', dataset);
+% groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
+groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
 tmpPath =  fullfile(root, 'datasets', 'trafficsigns', 'tmp', dataset);
 mkdir(tmpPath)
 
@@ -39,7 +39,8 @@ for i = 1:1
   transformedMask = distanceTransform(paddedMask);
 
   template = edge(template, 'Canny')+0;
-  correlated = xcorr2(template, transformedMask);
+%   correlated = xcorr2(template, transformedMask);
+  correlated = xcorr2(transformedMask, template);
   %correlated = normxcorr2(template, transformedMask);
   border = size(template,1);
   correlated = correlated(border:(end-border), border:(end-border));
