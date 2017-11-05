@@ -39,7 +39,7 @@ scales = 1:0.5:5;
 
 % For each mask
 % for i = 1:size(inputMasks,1)
-for i = 31:size(inputMasks,1)
+for i = 1:size(inputMasks,1)
   tic
   % Load image
   inputMaskObject = inputMasks(i);
@@ -56,8 +56,9 @@ for i = 31:size(inputMasks,1)
     do_plot = false;
   end
 
-  regionsAll = zeros(0, 4);
   % For each model
+  regionsAll = zeros(0, 4);
+  cancellingMaskComplete = false(size(iMask));
   for t = 1:size(models,3)
     % If there is nothing skip step
     if isnan(sum(iMask(:))) | sum(iMask(:)) == 0
@@ -69,7 +70,6 @@ for i = 31:size(inputMasks,1)
     for scale = 1:size(scales,2)
       model = imresize(modelOriginal, scales(scale)) > th;
       modelSize = size(model);
-      cancellingMaskComplete = false(size(iMask));
 
       % Add a border to avoid losing contours when filtering
       template = padarray(model, [1,1], 0, 'both');
@@ -84,7 +84,6 @@ for i = 31:size(inputMasks,1)
 
       % Do pattern matching with the mask and a template
       correlated = xcorr2(transformedMask, template);
-
       % correlated = normxcorr2(transformedMask, template);
 
       % Remove additional padding added before
@@ -99,12 +98,10 @@ for i = 31:size(inputMasks,1)
       [posy, posx] = find(minimasMask==1);
 
       % Filter out 'not-enough-minima'
-      % for position = 1:size(posy, 1)
       values = correlated(minimasMask==1);
       goodEnough = values < 3e-3;                        %%%% HYPER-PARAMETER
       posy = posy(goodEnough==1);
       posx = posx(goodEnough==1);
-      % end % for each position
 
       % Extract bounding boxes
       regions = zeros(size(posy,1), 4);
@@ -134,22 +131,21 @@ for i = 31:size(inputMasks,1)
   oMaskPath = fullfile(tmpPath, inputMaskObject.name);
   sprintf('Writing in %s', oMaskPath)
   oMask = iMask & cancellingMaskComplete;
+  imshow(cancellingMaskComplete,[])
   imwrite(oMask, oMaskPath);
 
   % Save regions
   name = strsplit(inputMaskObject.name, '.png');
   name = name{1};
   region_path = fullfile(tmpPath, strcat(name, '.mat'));
-
-  windowCandidates = struct('x',{},'y',{}, 'w', {}, 'h', {});
+  windowCandidates = struct('x',[],'y',[], 'w', [], 'h', []);
   for region = 1:size(regionsAll)
     r = regionsAll(region,:);
-    windowCandidates(region).x = r(1);
-    windowCandidates(region).y = r(2);
+    windowCandidates(region).y = r(1);
+    windowCandidates(region).x = r(2);
     windowCandidates(region).w = r(3);
     windowCandidates(region).h = r(4);
   end % for each region
-
   sprintf('Writing in %s, %d candidates', region_path, size(windowCandidates,1))
   save(region_path, 'windowCandidates');
 
