@@ -46,11 +46,11 @@ for i = 1:1
   gtMask = gtMask > 0; % Convert it to logical (faster)
 
   regionsAll = zeros(0, 4);
-  % For each template
-  % for t = 1:size(templates,3)
-  for t = 1:1
+  % For each model
+  for t = 1:size(models,3)
     model = models(:,:,i);
     modelSize = size(model);
+    cancellingMaskComplete = false(size(iMask));
 
     % Add a border to avoid losing contours when filtering
     template = padarray(model, [1,1], 0, 'both');
@@ -85,28 +85,27 @@ for i = 1:1
                       posx(position) - 0.5*modelSize(2), ...
                       modelSize(1), ...
                       modelSize(2)];
-    end % for
+    end % for each position
 
-    % Do a plot placing a model wherever the signal is found
-    if do_plots
-      result = zeros(size(iMask));
-      for position = 1:size(posy)
-        result(posy(position), posx(position)) = 1;
-      end % for
-      result = imdilate(result, model);
-      figure(3), imshow(result);
-    end % do_plots
-
-    % Save mask
-    % oMaskPath = fullfile(tmpPath, inputMaskObject.name);
-    % sprintf('Writing in %s', oMaskPath)
-    % oMask = iMask & ~cancellingMask;
-    % imwrite(oMask, oMaskPath);
+    % Compute a binary image of detections ('1' where a signal surface is detected)
+    cancellingMask = false(size(iMask));
+    for position = 1:size(posy)
+      cancellingMask(posy(position), posx(position)) = true;
+    end % for each position
+    cancellingMask = imdilate(cancellingMask, model);
+    cancellingMaskComplete = cancellingMaskComplete | cancellingMask;
 
     % Update regions for this mask
     numOfRegionsSaved = size(regionsAll,1);
     numOfRegionsFound = size(regions,1);
     regionsAll((numOfRegionsSaved+1):(numOfRegionsSaved+numOfRegionsFound), :) = regions;
+  end
+
+  % Save mask
+  oMaskPath = fullfile(tmpPath, inputMaskObject.name);
+  sprintf('Writing in %s', oMaskPath)
+  oMask = iMask & cancellingMaskComplete;
+  imwrite(oMask, oMaskPath);
 
   % Save regions
   name = strsplit(inputMaskObject.name, '.png');
@@ -114,11 +113,9 @@ for i = 1:1
   region_path = fullfile(tmpPath, strcat(name, '.mat'));
   save(region_path, 'regionsAll');
 
-  end % for
-
   if do_plots
     figure(1)
-%     figure('Name',sprintf('Mask %d', i));
+    % figure('Name',sprintf('Mask %d', i));
     % Show input mask
     subplot(2,3,1);
     imshow(featureMask,[]);
@@ -151,13 +148,19 @@ for i = 1:1
     imshow(correlated*256,hsv(256));
     title('correlated mask with pseudo-colour');
 
-    figure(2), subplot(1,2,1);
-    imshow(correlated, []);
-    title('correlated mask')
+    % FIGURE 2
+    figure(2)
+    subplot(1,3,1);
+    imshow(iMask, []);
+    title('Input mask')
 
-    subplot(1,2,2);
-    imshow(result, []);
+    subplot(1,3,2);
+    imshow(cancellingMaskComplete, []);
+    title('detection mask')
 
+    subplot(1,3,3);
+    imshow(oMask, []);
+    title('Output mask')
   end
 
-end
+end % for each  mask
