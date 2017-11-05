@@ -1,5 +1,5 @@
-c_tmp = reshape(c, nrows*ncols,1);
 [nrows, ncols] = size(c);
+c_tmp = reshape(c, nrows*ncols,1);
 ncluster = 10; maxIter = 1000; numReplicates = 10;
 [clus_idx, clus_center] = kmeans(c_tmp, ncluster, 'MaxIter', maxIter,...
     'distance', 'sqEuclidean', 'Replicates', numReplicates);

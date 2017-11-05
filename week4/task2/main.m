@@ -4,11 +4,17 @@ do_plots = true;
 % Add repository functions to path
 addpath(genpath('..'));
 
-% Set paths
+% Set paths (JON)
+dataset = 'train';
+root = '../../../';
+inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
+groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
+
+% Set paths (Ferran)
 % inputMasksPath = fullfile(root, 'm1-results', 'week3', 'm1', dataset);
-inputMasksPath = fullfile(root, 'm1-results', 'week3', 'm1', dataset);
-% groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
-groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
+%groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
+% groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
+
 tmpPath =  fullfile(root, 'datasets', 'trafficsigns', 'tmp', dataset);
 mkdir(tmpPath)
 
