@@ -1,13 +1,13 @@
 function [TP,FN,FP] = PerformanceAccumulationWindow(detections, annotations)
     % PerformanceAccumulationWindow
-    % Function to compute different performance indicators (True Positive, 
+    % Function to compute different performance indicators (True Positive,
     % False Positive, False Negative) at the object level.
     %
     % Objects are defined by means of rectangular windows circumscribing them.
     % Window format is [ struct(x,y,w,h) ; struct(x,y,w,h) ; ... ] in both
     % detections and annotations.
     %
-    % An object is considered to be detected correctly if detection and annotation 
+    % An object is considered to be detected correctly if detection and annotation
     % windows overlap by more of 50%
     %
     %   function [TP,FN,FP] = PerformanceAccumulationWindow(detections, annotations)
@@ -17,7 +17,7 @@ function [TP,FN,FP] = PerformanceAccumulationWindow(detections, annotations)
     %    'detections'        List of windows marking the candidate detections
     %    'annotations'       List of windows with the ground truth positions of the objects
     %
-    % The function returns the number of True Positive (TP), False Positive (FP), 
+    % The function returns the number of True Positive (TP), False Positive (FP),
     % False Negative (FN) objects
 
     detectionsUsed = zeros(1,size(detections,1));

@@ -1,7 +1,7 @@
 function [pixelTP, pixelFP, pixelFN, pixelTN] = PerformanceAccumulationPixel(pixelCandidates, pixelAnnotation)
     % PerformanceAccumulationPixel
-    % Function to compute different performance indicators 
-    % (True Positive, False Positive, False Negative, True Negative) 
+    % Function to compute different performance indicators
+    % (True Positive, False Positive, False Negative, True Negative)
     % at the pixel level
     %
     % [pixelTP, pixelFP, pixelFN, pixelTN] = PerformanceAccumulationPixel(pixelCandidates, pixelAnnotation)
@@ -11,9 +11,18 @@ function [pixelTP, pixelFP, pixelFN, pixelTN] = PerformanceAccumulationPixel(pix
     %    'pixelCandidates'   Binary image marking the detected areas
     %    'pixelAnnotation'   Binary image containing ground truth
     %
-    % The function returns the number of True Positive (pixelTP), False Positive (pixelFP), 
+    % The function returns the number of True Positive (pixelTP), False Positive (pixelFP),
     % False Negative (pixelFN) and True Negative (pixelTN) pixels in the image pixelCandidates
 
+    size(pixelAnnotation)
+    size(pixelCandidates)
+    sum(pixelAnnotation(:))
+    sum(pixelCandidates(:))
+    figure(1),
+    subplot(1,2,1), imshow(pixelCandidates,[]),
+    subplot(1,2,2), imshow(pixelAnnotation,[]),
+
+    pause(1)
     pixelCandidates = pixelCandidates>0;
     pixelAnnotation = pixelAnnotation(:,:,1)>0;
     pixelTP = sum(sum(pixelCandidates>0 & pixelAnnotation>0));
