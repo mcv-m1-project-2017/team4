@@ -1,11 +1,12 @@
 % Task 2: Template matching using Distance Transform and chamfer distance
 do_plots = true;
+do_plots = false;
 
 % Add repository functions to path
 addpath(genpath('..'));
 
 % Set paths (JON)
-dataset = 'train';
+dataset = 'validation';
 root = '../../../';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
@@ -25,14 +26,16 @@ gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 % Load templates (circularModel, downTriangModel, rectModel, upTriangModel)
 models_task1 = load('/home/jon/mcv_repos/team4/week4/task1/templateModels.mat');
 models = zeros(40,40,4);
-models(:,:,1) = models_task1.circularModel > 0.5;
-models(:,:,2) = models_task1.downTriangModel > 0.5;
-models(:,:,3) = models_task1.rectModel > 0.5;
-models(:,:,4) = models_task1.upTriangModel > 0.5;
+% consider_a_pixel_from_a_model_if_greater_than
+th = 0.8;                                             %%%% HYPER-PARAMETER
+models(:,:,1) = models_task1.circularModel > th;
+models(:,:,2) = models_task1.downTriangModel > th;
+models(:,:,3) = models_task1.rectModel > th;
+models(:,:,4) = models_task1.upTriangModel > th;
 
 % For each mask
 % for i = 1:size(inputMasks,1)
-for i = 1:1
+for i = 1:size(inputMasks,1)
   % Load image
   inputMaskObject = inputMasks(i);
   sprintf('Checking mask %d: %s', i, inputMaskObject.name)
@@ -40,15 +43,18 @@ for i = 1:1
   iMask = imread(inputMaskPath);
 
   % Load ground thruth (comment it out when not validating)
-  gtMaskObject = gtMasks(i);
-  gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
-  gtMask = imread(gtMaskPath);
-  gtMask = gtMask > 0; % Convert it to logical (faster)
+  if ~strcmp(dataset,'test')
+    gtMaskObject = gtMasks(i);
+    gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
+    gtMask = imread(gtMaskPath);
+    gtMask = gtMask > 0; % Convert it to logical (faster)
+    do_plot = false;
+  end
 
   regionsAll = zeros(0, 4);
   % For each model
   for t = 1:size(models,3)
-    model = models(:,:,i);
+    model = models(:,:,t);
     modelSize = size(model);
     cancellingMaskComplete = false(size(iMask));
 
@@ -65,6 +71,11 @@ for i = 1:1
 
     % Do pattern matching with the mask and a template
     correlated = xcorr2(transformedMask, template);
+
+    % If there is nothing skip step
+    if isnan(sum(correlated(:)))
+      continue
+    end
     % correlated = normxcorr2(transformedMask, template);
 
     % Remove additional padding added before
@@ -77,6 +88,14 @@ for i = 1:1
     % Find local minimas using 8-connected neighbourhood
     minimasMask = imregionalmin(correlated ,8);
     [posy, posx] = find(minimasMask==1);
+
+    % Filter out 'not-enough-minima'
+    % for position = 1:size(posy, 1)
+    values = correlated(minimasMask==1);
+    goodEnough = values < 1e-3;                        %%%% HYPER-PARAMETER
+    posy = posy(gp==1);
+    posx = posx(gp==1);
+    % end % for each position
 
     % Extract bounding boxes
     regions = zeros(size(posy,1), 4);
@@ -125,7 +144,7 @@ for i = 1:1
     subplot(2,3,2);
     imshow(transformedMask,[]);
     title('distance transformed');
-    %plot = falseXx
+    %plot = false
 
     % Show output mask
     subplot(2,3,3);
