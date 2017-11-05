@@ -99,7 +99,7 @@ for i = 1:1
     numOfRegionsSaved = size(regionsAll,1);
     numOfRegionsFound = size(regions,1);
     regionsAll((numOfRegionsSaved+1):(numOfRegionsSaved+numOfRegionsFound), :) = regions;
-  end
+  end  % for each model
 
   % Save mask
   oMaskPath = fullfile(tmpPath, inputMaskObject.name);
@@ -161,6 +161,6 @@ for i = 1:1
     subplot(1,3,3);
     imshow(oMask, []);
     title('Output mask')
-  end
+  end % if do_plot
 
 end % for each  mask
