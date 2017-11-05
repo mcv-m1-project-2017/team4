@@ -15,7 +15,7 @@ input:  - m: nxm binary-valued matrix
 output: - M: nxm integer-valued matrix
 %}
   M = bwdist(m, 'chessboard');
-  % M = bwdist(m, 'euclidean');
-  % M = bwdist(m, 'cityblock');
-  % M = bwdist(m, 'quasi-euclidean');
+  %M = bwdist(m, 'euclidean');
+  %M = bwdist(m, 'cityblock');
+  %M = bwdist(m, 'quasi-euclidean');
 end
