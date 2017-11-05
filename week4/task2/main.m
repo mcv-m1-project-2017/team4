@@ -23,12 +23,12 @@ inputMasks = dir(fullfile(inputMasksPath, '*.png'));
 gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 
 % Load templates (circularModel, downTriangModel, rectModel, upTriangModel)
-models = load('/home/jon/mcv_repos/team4/week4/task1/templateModels.mat');
-templates = zeros(40,40,4);
-templates(:,:,1) = models.circularModel;
-templates(:,:,2) = models.downTriangModel;
-templates(:,:,3) = models.rectModel;
-templates(:,:,4) = models.upTriangModel;
+models_task1 = load('/home/jon/mcv_repos/team4/week4/task1/templateModels.mat');
+models = zeros(40,40,4);
+models(:,:,1) = models_task1.circularModel > 0.5;
+models(:,:,2) = models_task1.downTriangModel > 0.5;
+models(:,:,3) = models_task1.rectModel > 0.5;
+models(:,:,4) = models_task1.upTriangModel > 0.5;
 
 % For each mask
 % for i = 1:size(inputMasks,1)
@@ -45,12 +45,15 @@ for i = 1:1
   gtMask = imread(gtMaskPath);
   gtMask = gtMask > 0; % Convert it to logical (faster)
 
+  regionsAll = zeros(0, 4);
   % For each template
   % for t = 1:size(templates,3)
   for t = 1:1
-    template = templates(:,:,i);
+    model = models(:,:,i);
+    modelSize = size(model);
+
     % Add a border to avoid losing contours when filtering
-    template = padarray(template, [1,1], 0, 'both');
+    template = padarray(model, [1,1], 0, 'both');
     featureMask = edge(iMask,'Canny');
     template = edge(template, 'Canny')+0;
 
@@ -71,25 +74,28 @@ for i = 1:1
     % Normalize result
     correlated = correlated./max(correlated(:));
 
-    % Find local minimas
-    % --------------------------- CODE in DEV -------------------------------
-    c = correlated;
-    min(c(:)), max(c(:))
-    se = ones(1,3);
-    betterC = imbothat(c, se);
-    betterC = imtophat(betterC, se');
-    betterC = betterC ./ max(betterC);
-    min(betterC(:)), max(betterC(:))
-    bestC = c;
-    betterC = c;
-    c(betterC<0.01)=1;
+    % Find local minimas using 8-connected neighbourhood
+    minimasMask = imregionalmin(correlated ,8);
+    [posy, posx] = find(minimasMask==1);
 
-    % for i = 1:size(positions, 1)
-    %
-    % end % for
-    % %c(c==min(c(:)))=256;
-    %[min(c(:)),   max(c(:))]
-    positions = extractLocalMinima(bestC);
+    % Extract bounding boxes
+    regions = zeros(size(posy,1), 4);
+    for position = 1:size(posy,1)
+      regions(position,:) = [posy(position) - 0.5*modelSize(1), ...
+                      posx(position) - 0.5*modelSize(2), ...
+                      modelSize(1), ...
+                      modelSize(2)];
+    end % for
+
+    % Do a plot placing a model wherever the signal is found
+    if do_plots
+      result = zeros(size(iMask));
+      for position = 1:size(posy)
+        result(posy(position), posx(position)) = 1;
+      end % for
+      result = imdilate(result, model);
+      figure(3), imshow(result);
+    end % do_plots
 
     % Save mask
     % oMaskPath = fullfile(tmpPath, inputMaskObject.name);
@@ -97,11 +103,17 @@ for i = 1:1
     % oMask = iMask & ~cancellingMask;
     % imwrite(oMask, oMaskPath);
 
-    % Save regions
-    % name = strsplit(inputMaskObject.name, '.png');
-    % name = name{1};
-    % region_path = fullfile(tmpPath, strcat(name, '.mat'));
-    % save(region_path, 'regionProposal');
+    % Update regions for this mask
+    numOfRegionsSaved = size(regionsAll,1);
+    numOfRegionsFound = size(regions,1);
+    regionsAll((numOfRegionsSaved+1):(numOfRegionsSaved+numOfRegionsFound), :) = regions;
+
+  % Save regions
+  name = strsplit(inputMaskObject.name, '.png');
+  name = name{1};
+  region_path = fullfile(tmpPath, strcat(name, '.mat'));
+  save(region_path, 'regionsAll');
+
   end % for
 
   if do_plots
@@ -137,10 +149,14 @@ for i = 1:1
     % Show ground truth mask
     subplot(2,3,6);
     imshow(c*256,hsv(256));
-    title('cor mask');
+    title('correlated mask with pseudo-colour');
 
-    figure(2), subplot(2,1,1), imshow(c, []);
-    subplot(2,1,2), imshow(betterC, []);
+    figure(2), subplot(1,2,1);
+    imshow(correlated, []);
+    title('correlated mask')
+
+    subplot(1,2,2);
+    imshow(result, []);
 
   end
 
