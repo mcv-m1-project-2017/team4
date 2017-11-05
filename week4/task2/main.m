@@ -1,4 +1,5 @@
 % Task 2: Template matching using Distance Transform and chamfer distance
+tic
 do_plots = true;
 do_plots = false;
 
@@ -27,18 +28,22 @@ gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 models_task1 = load('/home/jon/mcv_repos/team4/week4/task1/templateModels.mat');
 models = zeros(40,40,4);
 % consider_a_pixel_from_a_model_if_greater_than
-th = 0.8;                                             %%%% HYPER-PARAMETER
+th = 0.7;                                             %%%% HYPER-PARAMETER
 models(:,:,1) = models_task1.circularModel > th;
 models(:,:,2) = models_task1.downTriangModel > th;
 models(:,:,3) = models_task1.rectModel > th;
 models(:,:,4) = models_task1.upTriangModel > th;
 
+% original scale is 40x40
+scales = 1:0.5:5;
+
 % For each mask
 % for i = 1:size(inputMasks,1)
-for i = 1:size(inputMasks,1)
+for i = 31:size(inputMasks,1)
+  tic
   % Load image
   inputMaskObject = inputMasks(i);
-  sprintf('Checking mask %d: %s', i, inputMaskObject.name)
+  sprintf('Checking mask %d: %s/%s', i, inputMasksPath, inputMaskObject.name)
   inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
   iMask = imread(inputMaskPath);
 
@@ -54,70 +59,75 @@ for i = 1:size(inputMasks,1)
   regionsAll = zeros(0, 4);
   % For each model
   for t = 1:size(models,3)
-    model = models(:,:,t);
-    modelSize = size(model);
-    cancellingMaskComplete = false(size(iMask));
-
-    % Add a border to avoid losing contours when filtering
-    template = padarray(model, [1,1], 0, 'both');
-    featureMask = edge(iMask,'Canny');
-    template = edge(template, 'Canny')+0;
-
-    % Add padding to avoid contour effects when doing correlation
-    paddedMask = padarray(featureMask, size(template)/2, 0, 'both');
-
-    % Distance Transform the feature mask
-    transformedMask = distanceTransform(paddedMask);
-
-    % Do pattern matching with the mask and a template
-    correlated = xcorr2(transformedMask, template);
-
     % If there is nothing skip step
-    if isnan(sum(correlated(:)))
+    if isnan(sum(iMask(:))) | sum(iMask(:)) == 0
       continue
     end
-    % correlated = normxcorr2(transformedMask, template);
 
-    % Remove additional padding added before
-    border = size(template,1);
-    correlated = correlated(border:(end-border), border:(end-border));
+    modelOriginal = models(:,:,t);
 
-    % Normalize result
-    correlated = correlated./max(correlated(:));
+    for scale = 1:size(scales,2)
+      model = imresize(modelOriginal, scales(scale)) > th;
+      modelSize = size(model);
+      cancellingMaskComplete = false(size(iMask));
 
-    % Find local minimas using 8-connected neighbourhood
-    minimasMask = imregionalmin(correlated ,8);
-    [posy, posx] = find(minimasMask==1);
+      % Add a border to avoid losing contours when filtering
+      template = padarray(model, [1,1], 0, 'both');
+      featureMask = edge(iMask,'Canny');
+      template = edge(template, 'Canny')+0;
 
-    % Filter out 'not-enough-minima'
-    % for position = 1:size(posy, 1)
-    values = correlated(minimasMask==1);
-    goodEnough = values < 1e-3;                        %%%% HYPER-PARAMETER
-    posy = posy(gp==1);
-    posx = posx(gp==1);
-    % end % for each position
+      % Add padding to avoid contour effects when doing correlation
+      paddedMask = padarray(featureMask, size(template)/2, 0, 'both');
 
-    % Extract bounding boxes
-    regions = zeros(size(posy,1), 4);
-    for position = 1:size(posy,1)
-      regions(position,:) = [posy(position) - 0.5*modelSize(1), ...
-                      posx(position) - 0.5*modelSize(2), ...
-                      modelSize(1), ...
-                      modelSize(2)];
-    end % for each position
+      % Distance Transform the feature mask
+      transformedMask = distanceTransform(paddedMask);
 
-    % Compute a binary image of detections ('1' where a signal surface is detected)
-    cancellingMask = false(size(iMask));
-    for position = 1:size(posy)
-      cancellingMask(posy(position), posx(position)) = true;
-    end % for each position
-    cancellingMask = imdilate(cancellingMask, model);
-    cancellingMaskComplete = cancellingMaskComplete | cancellingMask;
+      % Do pattern matching with the mask and a template
+      correlated = xcorr2(transformedMask, template);
 
-    % Update regions for this mask
-    numOfRegionsSaved = size(regionsAll,1);
-    numOfRegionsFound = size(regions,1);
-    regionsAll((numOfRegionsSaved+1):(numOfRegionsSaved+numOfRegionsFound), :) = regions;
+      % correlated = normxcorr2(transformedMask, template);
+
+      % Remove additional padding added before
+      border = size(template,1);
+      correlated = correlated(border:(end-border), border:(end-border));
+
+      % Normalize result
+      correlated = correlated./max(correlated(:));
+
+      % Find local minimas using 8-connected neighbourhood
+      minimasMask = imregionalmin(correlated ,8);
+      [posy, posx] = find(minimasMask==1);
+
+      % Filter out 'not-enough-minima'
+      % for position = 1:size(posy, 1)
+      values = correlated(minimasMask==1);
+      goodEnough = values < 3e-3;                        %%%% HYPER-PARAMETER
+      posy = posy(goodEnough==1);
+      posx = posx(goodEnough==1);
+      % end % for each position
+
+      % Extract bounding boxes
+      regions = zeros(size(posy,1), 4);
+      for position = 1:size(posy,1)
+        regions(position,:) = [posy(position) - 0.5*modelSize(1), ...
+                        posx(position) - 0.5*modelSize(2), ...
+                        modelSize(1), ...
+                        modelSize(2)];
+      end % for each position
+
+      % Compute a binary image of detections ('1' where a signal surface is detected)
+      cancellingMask = false(size(iMask));
+      for position = 1:size(posy)
+        cancellingMask(posy(position), posx(position)) = true;
+      end % for each position
+      cancellingMask = imdilate(cancellingMask, model);
+      cancellingMaskComplete = cancellingMaskComplete | cancellingMask;
+
+      % Update regions for this mask
+      numOfRegionsSaved = size(regionsAll,1);
+      numOfRegionsFound = size(regions,1);
+      regionsAll((numOfRegionsSaved+1):(numOfRegionsSaved+numOfRegionsFound), :) = regions;
+    end % for each scale
   end  % for each model
 
   % Save mask
@@ -130,7 +140,18 @@ for i = 1:size(inputMasks,1)
   name = strsplit(inputMaskObject.name, '.png');
   name = name{1};
   region_path = fullfile(tmpPath, strcat(name, '.mat'));
-  save(region_path, 'regionsAll');
+
+  windowCandidates = struct('x',{},'y',{}, 'w', {}, 'h', {});
+  for region = 1:size(regionsAll)
+    r = regionsAll(region,:);
+    windowCandidates(region).x = r(1);
+    windowCandidates(region).y = r(2);
+    windowCandidates(region).w = r(3);
+    windowCandidates(region).h = r(4);
+  end % for each region
+
+  sprintf('Writing in %s, %d candidates', region_path, size(windowCandidates,1))
+  save(region_path, 'windowCandidates');
 
   if do_plots
     figure(1)
@@ -181,5 +202,6 @@ for i = 1:size(inputMasks,1)
     imshow(oMask, []);
     title('Output mask')
   end % if do_plot
-
+  toc
 end % for each  mask
+toc

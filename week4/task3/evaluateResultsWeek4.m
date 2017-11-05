@@ -1,4 +1,4 @@
-function [evaluationParams] = evaluateResults(resultsFolder, gtFolder, evaluationType)
+function [evaluationParams] = evaluateResultsWeek4(resultsFolder, gtFolder, evaluationType)
 % EVALUATERESULTS compute 'evaluationType'-based evaluation measurements
 % for the result files stored in the 'resultsFolder' path by comparing it
 % to the Ground Truth data in the 'gtFolder' path.
