@@ -22,81 +22,87 @@ mkdir(tmpPath)
 inputMasks = dir(fullfile(inputMasksPath, '*.png'));
 gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 
+% Load templates (circularModel, downTriangModel, rectModel, upTriangModel)
+models = load('/home/jon/mcv_repos/team4/week4/task1/templateModels.mat');
+templates = zeros(40,40,4);
+templates(:,:,1) = models.circularModel;
+templates(:,:,2) = models.downTriangModel;
+templates(:,:,3) = models.rectModel;
+templates(:,:,4) = models.upTriangModel;
+
+% For each mask
 % for i = 1:size(inputMasks,1)
 for i = 1:1
-  sprintf('Checking mask %d', i)
+  % Load image
   inputMaskObject = inputMasks(i);
+  sprintf('Checking mask %d: %s', i, inputMaskObject.name)
   inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
   iMask = imread(inputMaskPath);
 
+  % Load ground thruth (comment it out when not validating)
   gtMaskObject = gtMasks(i);
   gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
   gtMask = imread(gtMaskPath);
-  % Convert it to logical (faster)
-  gtMask = gtMask > 0;
+  gtMask = gtMask > 0; % Convert it to logical (faster)
 
-  % DO ALL THE MAGIC HERE
-  iMask = zeros(400,400);
-  iMask(50:149, 100:199)=1;
-  iMask(200:299, 200:299)=1;
-  iMask(170:190, 100:119)=1;
-  iMask(220:279 , 50:109)=1;
-  featureMask = edge(iMask,'Canny');
-  template = ones(100,100);
-  template([1,end],:)=0; template(:,[1,end])=0;
+  % For each template
+  % for t = 1:size(templates,3)
+  for t = 1:1
+    template = templates(:,:,i);
+    % Add a border to avoid losing contours when filtering
+    template = padarray(template, [1,1], 0, 'both');
+    featureMask = edge(iMask,'Canny');
+    template = edge(template, 'Canny')+0;
 
-  paddedMask = padarray(featureMask, size(template)/2, 0, 'both');
-  transformedMask = distanceTransform(paddedMask);
+    % Add padding to avoid contour effects when doing correlation
+    paddedMask = padarray(featureMask, size(template)/2, 0, 'both');
 
-  template = edge(template, 'Canny')+0;
-%   correlated = xcorr2(template, transformedMask);
-  correlated = xcorr2(transformedMask, template);
-  %correlated = normxcorr2(template, transformedMask);
-  border = size(template,1);
-  correlated = correlated(border:(end-border), border:(end-border));
-  correlated = correlated./max(correlated(:));
-  c = correlated;
-  %c = ind2rgb(c, jet(256));
-  %1-correlated;
-  %c = c > 0.9;
-  %cor(cor<0.01)=255;
-  %cor = int16(cor);
-  %c = c*255;
-  min(c(:)), max(c(:))
-  %se = ones(3);
-  se = strel('disk',3);
-  %se = ones(3,1);
-  % se = [0 1 0;
-  %       1 1 1;
-  %       0 1 0];
-  se = ones(1,3);
-  betterC = imbothat(c, se);
-  betterC = imtophat(betterC, se');
-  betterC = betterC ./ max(betterC);
-  min(betterC(:)), max(betterC(:))
+    % Distance Transform the feature mask
+    transformedMask = distanceTransform(paddedMask);
 
-  bestC = c;
-  positions = extractLocalMinima(bestC);
+    % Do pattern matching with the mask and a template
+    correlated = xcorr2(transformedMask, template);
+    % correlated = normxcorr2(transformedMask, template);
 
-  betterC = c;
-  c(betterC<0.01)=1;
-  % for i = 1:size(positions, 1)
-  %
-  % end % for
-  % %c(c==min(c(:)))=256;
-  %[min(c(:)),   max(c(:))]
+    % Remove additional padding added before
+    border = size(template,1);
+    correlated = correlated(border:(end-border), border:(end-border));
 
-  % Save mask
-  % oMaskPath = fullfile(tmpPath, inputMaskObject.name);
-  % sprintf('Writing in %s', oMaskPath)
-  % oMask = iMask & ~cancellingMask;
-  % imwrite(oMask, oMaskPath);
+    % Normalize result
+    correlated = correlated./max(correlated(:));
 
-  % Save regions
-  % name = strsplit(inputMaskObject.name, '.png');
-  % name = name{1};
-  % region_path = fullfile(tmpPath, strcat(name, '.mat'));
-  % save(region_path, 'regionProposal');
+    % Find local minimas
+    % --------------------------- CODE in DEV -------------------------------
+    c = correlated;
+    min(c(:)), max(c(:))
+    se = ones(1,3);
+    betterC = imbothat(c, se);
+    betterC = imtophat(betterC, se');
+    betterC = betterC ./ max(betterC);
+    min(betterC(:)), max(betterC(:))
+    bestC = c;
+    betterC = c;
+    c(betterC<0.01)=1;
+
+    % for i = 1:size(positions, 1)
+    %
+    % end % for
+    % %c(c==min(c(:)))=256;
+    %[min(c(:)),   max(c(:))]
+    positions = extractLocalMinima(bestC);
+
+    % Save mask
+    % oMaskPath = fullfile(tmpPath, inputMaskObject.name);
+    % sprintf('Writing in %s', oMaskPath)
+    % oMask = iMask & ~cancellingMask;
+    % imwrite(oMask, oMaskPath);
+
+    % Save regions
+    % name = strsplit(inputMaskObject.name, '.png');
+    % name = name{1};
+    % region_path = fullfile(tmpPath, strcat(name, '.mat'));
+    % save(region_path, 'regionProposal');
+  end % for
 
   if do_plots
     figure(1)
@@ -109,14 +115,14 @@ for i = 1:1
     % Show transformed
     subplot(2,3,2);
     imshow(transformedMask,[]);
-    title('distance mask');
+    title('distance transformed');
     %plot = falseXx
 
     % Show output mask
     subplot(2,3,3);
     imshow(template,[]);
     title('template');
-    axis([1, size(featureMask,1), 1, size(featureMask,2)]);
+    % axis([1, size(featureMask,1), 1, size(featureMask,2)]);
 
     % Show ground truth mask
     subplot(2,3,4);
