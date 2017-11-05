@@ -8,7 +8,7 @@ categories = {};
 addpath(genpath('../../../../'));
 
 load('GeometricFeatures_train.mat');
-load('GeometricalConstraints_params.mat');
+load('GeometricConstraints_params_v2.mat');
 circularPrecision = [];
 circularRecall = [];
 circularAccuracy = [];
@@ -21,7 +21,7 @@ downTriangAccuracy = [];
 rectPrecision = [];
 rectRecall = [];
 rectAccuracy = [];
-values = 0:0.05:1;
+values = 0:0.02:1;
 
 %compute ROC for circular template
 for i = values
@@ -58,12 +58,20 @@ end
 
 
 figure();
-subplot(2,2,1); title('Circular pattern Precision-Recall Curve');
+title('Precision-Recall Curves');
+subplot(2,2,1); 
 plot(circularPrecision,circularRecall);
-subplot(2,2,2); title('Up Triangular pattern Precision-Recall Curve');
+title('Circular pattern');
+axis([0.5 1 0 1]);
+subplot(2,2,2); 
 plot(upTriangPrecision,upTriangRecall);
-subplot(2,2,3); title('Down Triangular pattern Precision-Recall Curve');
+title('Up Triangular pattern');
+axis([0.5 1 0 1]);
+subplot(2,2,3); 
 plot(downTriangPrecision,downTriangRecall);
-subplot(2,2,4); title('Rectangular pattern Precision-Recall Curve');
+title('Down Triangular pattern');
+axis([0.5 1 0 1]);
+subplot(2,2,4); 
 plot(rectPrecision,rectRecall);
-
+title('Rectangular pattern');
+axis([0.5 1 0 1]);

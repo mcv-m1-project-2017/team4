@@ -98,17 +98,9 @@ for i = 1:size(files,1)
     % <Insert your method as a new 'elseif' condition>
     if (method_num == 1)
         filteredMask = imfill(segmentationMask, 'holes');
-        %         if (isempty(find(filteredMask(filteredMask > 0), 1)))   % (**)
-        %             % Revert back to the colour segmentation (better to have a possible
-        %             % signal (although it may be a FP) than a FN rightoutaway
-        %             filteredMask = segmentationMask;
-        %         end
+
         filteredMask2 = imopen(filteredMask, strel('square', 20));
-        %         if (isempty(find(filteredMask2(filteredMask2 > 0), 1))) % (**)
-        %             % Same logic as above
-        %             filteredMask2 = filteredMask;
-        %         end
-        % Apply geometrical constraints to lower the number of FPs
+
         [CC, CC_stats] = computeCC_regionProps(filteredMask2);
         
         % This function internally checks the conditions put above (**)

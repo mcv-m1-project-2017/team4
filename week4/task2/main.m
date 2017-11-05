@@ -1,14 +1,21 @@
 % Task 2: Template matching using Distance Transform and chamfer distance
 do_plots = true;
+do_plots = false;
 
 % Add repository functions to path
 addpath(genpath('..'));
 
-% Set paths
-dataset = 'train';
+% Set paths (JON)
+dataset = 'validation';
 root = '../../../';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
+
+% Set paths (Ferran)
+% inputMasksPath = fullfile(root, 'm1-results', 'week3', 'm1', dataset);
+%groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
+% groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
+
 tmpPath =  fullfile(root, 'datasets', 'trafficsigns', 'tmp', dataset);
 mkdir(tmpPath)
 
@@ -16,77 +23,118 @@ mkdir(tmpPath)
 inputMasks = dir(fullfile(inputMasksPath, '*.png'));
 gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 
+% Load templates (circularModel, downTriangModel, rectModel, upTriangModel)
+models_task1 = load('/home/jon/mcv_repos/team4/week4/task1/templateModels.mat');
+models = zeros(40,40,4);
+% consider_a_pixel_from_a_model_if_greater_than
+th = 0.8;                                             %%%% HYPER-PARAMETER
+models(:,:,1) = models_task1.circularModel > th;
+models(:,:,2) = models_task1.downTriangModel > th;
+models(:,:,3) = models_task1.rectModel > th;
+models(:,:,4) = models_task1.upTriangModel > th;
+
+% For each mask
 % for i = 1:size(inputMasks,1)
-for i = 1:1
-  sprintf('Checking mask %d', i)
+for i = 1:size(inputMasks,1)
+  % Load image
   inputMaskObject = inputMasks(i);
+  sprintf('Checking mask %d: %s', i, inputMaskObject.name)
   inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
   iMask = imread(inputMaskPath);
 
-  gtMaskObject = gtMasks(i);
-  gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
-  gtMask = imread(gtMaskPath);
-  % Convert it to logical (faster)
-  gtMask = gtMask > 0;
+  % Load ground thruth (comment it out when not validating)
+  if ~strcmp(dataset,'test')
+    gtMaskObject = gtMasks(i);
+    gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
+    gtMask = imread(gtMaskPath);
+    gtMask = gtMask > 0; % Convert it to logical (faster)
+    do_plot = false;
+  end
 
-  % DO ALL THE MAGIC HERE
-  iMask = zeros(400,400); iMask(50:149, 100:199)=1; iMask(200:299, 200:299)=1;
-  featureMask = edge(iMask,'Canny');
-  template = ones(100,100);
-  template([1,end],:)=0; template(:,[1,end])=0;
+  regionsAll = zeros(0, 4);
+  % For each model
+  for t = 1:size(models,3)
+    model = models(:,:,t);
+    modelSize = size(model);
+    cancellingMaskComplete = false(size(iMask));
 
-  paddedMask = padarray(featureMask, size(template)/2, 0, 'both');
-  transformedMask = distanceTransform(paddedMask);
+    % Add a border to avoid losing contours when filtering
+    template = padarray(model, [1,1], 0, 'both');
+    featureMask = edge(iMask,'Canny');
+    template = edge(template, 'Canny')+0;
 
-  template = edge(template, 'Canny')+0;
-  correlated = xcorr2(template, transformedMask);
-  %correlated = normxcorr2(template, transformedMask);
-  border = size(template,1);
-  correlated = correlated(border:(end-border), border:(end-border));
-  correlated = correlated./max(correlated(:));
-  c = correlated;
-  %c = ind2rgb(c, jet(256));
-  %1-correlated;
-  %c = c > 0.9;
-  %cor(cor<0.01)=255;
-  %cor = int16(cor);
-  %c = c*255;
-  min(c(:)), max(c(:))
-  %se = ones(3);
-  se = strel('disk',3);
-  %se = ones(3,1);
-  % se = [0 1 0;
-  %       1 1 1;
-  %       0 1 0];
-  se = ones(1,3);
-  betterC = imbothat(c, se);
-  betterC = imtophat(betterC, se');
-  betterC = betterC ./ max(betterC);
-  min(betterC(:)), max(betterC(:))
+    % Add padding to avoid contour effects when doing correlation
+    paddedMask = padarray(featureMask, size(template)/2, 0, 'both');
 
-  bestC = c;
-  positions = extractLocalMinima(bestC);
-  % for i = 1:size(positions, 1)
-  %
-  % end % for
-  % %c(c==min(c(:)))=256;
-  %[min(c(:)),   max(c(:))]
+    % Distance Transform the feature mask
+    transformedMask = distanceTransform(paddedMask);
+
+    % Do pattern matching with the mask and a template
+    correlated = xcorr2(transformedMask, template);
+
+    % If there is nothing skip step
+    if isnan(sum(correlated(:)))
+      continue
+    end
+    % correlated = normxcorr2(transformedMask, template);
+
+    % Remove additional padding added before
+    border = size(template,1);
+    correlated = correlated(border:(end-border), border:(end-border));
+
+    % Normalize result
+    correlated = correlated./max(correlated(:));
+
+    % Find local minimas using 8-connected neighbourhood
+    minimasMask = imregionalmin(correlated ,8);
+    [posy, posx] = find(minimasMask==1);
+
+    % Filter out 'not-enough-minima'
+    % for position = 1:size(posy, 1)
+    values = correlated(minimasMask==1);
+    goodEnough = values < 1e-3;                        %%%% HYPER-PARAMETER
+    posy = posy(gp==1);
+    posx = posx(gp==1);
+    % end % for each position
+
+    % Extract bounding boxes
+    regions = zeros(size(posy,1), 4);
+    for position = 1:size(posy,1)
+      regions(position,:) = [posy(position) - 0.5*modelSize(1), ...
+                      posx(position) - 0.5*modelSize(2), ...
+                      modelSize(1), ...
+                      modelSize(2)];
+    end % for each position
+
+    % Compute a binary image of detections ('1' where a signal surface is detected)
+    cancellingMask = false(size(iMask));
+    for position = 1:size(posy)
+      cancellingMask(posy(position), posx(position)) = true;
+    end % for each position
+    cancellingMask = imdilate(cancellingMask, model);
+    cancellingMaskComplete = cancellingMaskComplete | cancellingMask;
+
+    % Update regions for this mask
+    numOfRegionsSaved = size(regionsAll,1);
+    numOfRegionsFound = size(regions,1);
+    regionsAll((numOfRegionsSaved+1):(numOfRegionsSaved+numOfRegionsFound), :) = regions;
+  end  % for each model
 
   % Save mask
-  % oMaskPath = fullfile(tmpPath, inputMaskObject.name);
-  % sprintf('Writing in %s', oMaskPath)
-  % oMask = iMask & ~cancellingMask;
-  % imwrite(oMask, oMaskPath);
+  oMaskPath = fullfile(tmpPath, inputMaskObject.name);
+  sprintf('Writing in %s', oMaskPath)
+  oMask = iMask & cancellingMaskComplete;
+  imwrite(oMask, oMaskPath);
 
   % Save regions
-  % name = strsplit(inputMaskObject.name, '.png');
-  % name = name{1};
-  % region_path = fullfile(tmpPath, strcat(name, '.mat'));
-  % save(region_path, 'regionProposal');
+  name = strsplit(inputMaskObject.name, '.png');
+  name = name{1};
+  region_path = fullfile(tmpPath, strcat(name, '.mat'));
+  save(region_path, 'regionsAll');
 
   if do_plots
     figure(1)
-%     figure('Name',sprintf('Mask %d', i));
+    % figure('Name',sprintf('Mask %d', i));
     % Show input mask
     subplot(2,3,1);
     imshow(featureMask,[]);
@@ -95,14 +143,14 @@ for i = 1:1
     % Show transformed
     subplot(2,3,2);
     imshow(transformedMask,[]);
-    title('distance mask');
-    %plot = falseXx
+    title('distance transformed');
+    %plot = false
 
     % Show output mask
     subplot(2,3,3);
     imshow(template,[]);
     title('template');
-    axis([1, size(featureMask,1), 1, size(featureMask,2)]);
+    % axis([1, size(featureMask,1), 1, size(featureMask,2)]);
 
     % Show ground truth mask
     subplot(2,3,4);
@@ -116,12 +164,22 @@ for i = 1:1
 
     % Show ground truth mask
     subplot(2,3,6);
-    imshow(c*256,hsv(256));
-    title('cor mask');
+    imshow(correlated*256,hsv(256));
+    title('correlated mask with pseudo-colour');
 
-    figure(2), subplot(2,1,1), imshow(c, []);
-    subplot(2,1,2), imshow(betterC, []);
+    % FIGURE 2
+    figure(2)
+    subplot(1,3,1);
+    imshow(iMask, []);
+    title('Input mask')
 
-  end
+    subplot(1,3,2);
+    imshow(cancellingMaskComplete, []);
+    title('detection mask')
 
-end
+    subplot(1,3,3);
+    imshow(oMask, []);
+    title('Output mask')
+  end % if do_plot
+
+end % for each  mask
