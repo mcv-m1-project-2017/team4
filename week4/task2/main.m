@@ -148,7 +148,7 @@ for i = 1:1
 
     % Show ground truth mask
     subplot(2,3,6);
-    imshow(c*256,hsv(256));
+    imshow(correlated*256,hsv(256));
     title('correlated mask with pseudo-colour');
 
     figure(2), subplot(1,2,1);
