@@ -5,5 +5,5 @@ function [CC, regionProps] = computeCC_regionProps(mask)
 % 'applyGeometricalConstraints.m' to obtain a 'constrained' mask.
 
 CC = bwconncomp(mask);
-regionProps = regionprops(CC, 'Area', 'BoundingBox');
+regionProps = regionprops(CC, 'Area', 'BoundingBox', 'Centroid', 'PixelList');
 end
