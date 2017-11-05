@@ -30,7 +30,11 @@ for i = 1:1
   gtMask = gtMask > 0;
 
   % DO ALL THE MAGIC HERE
-  iMask = zeros(400,400); iMask(50:149, 100:199)=1; iMask(200:299, 200:299)=1;
+  iMask = zeros(400,400);
+  iMask(50:149, 100:199)=1;
+  iMask(200:299, 200:299)=1;
+  iMask(170:190, 100:119)=1;
+  iMask(220:279 , 50:109)=1;
   featureMask = edge(iMask,'Canny');
   template = ones(100,100);
   template([1,end],:)=0; template(:,[1,end])=0;
@@ -67,6 +71,9 @@ for i = 1:1
 
   bestC = c;
   positions = extractLocalMinima(bestC);
+
+  betterC = c;
+  c(betterC<0.01)=1;
   % for i = 1:size(positions, 1)
   %
   % end % for

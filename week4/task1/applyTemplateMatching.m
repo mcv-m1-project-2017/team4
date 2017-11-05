@@ -45,7 +45,7 @@ for i = 1:length(windowCandidates)
     circularResult = applyTemplateMask (ROI, circularModel);
     rectResult = applyTemplateMask (ROI, rectModel);
 
-    condition = ((upTriangResult>0.63)||(downTriangResult>0.7)||(circularResult>0.32)||(rectResult>0.37));
+    condition = ((upTriangResult>0.63)||(downTriangResult>0.7)||(circularResult>0.58)||(rectResult>0.38));
     if condition
         listBBs = [listBBs windowCandidates(i)];
     else

@@ -8,9 +8,9 @@ categories = {};
 addpath(genpath('../../../'));
 
 load('GeometricFeatures_train.mat');
-load('GeometricalConstraints_params.mat');
+load('GeometricConstraints_params_v2.mat');
 
 [evaluationParameters, windowCandidates] = templateMatching('debug',geometricFeatures,...
-    params, 'train',1)
+    params, 'validation',1)
 
-%boxplot(corrRes, categories)
+boxplot(corrRes, categories)

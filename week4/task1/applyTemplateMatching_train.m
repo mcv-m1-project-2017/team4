@@ -49,7 +49,7 @@ for i = 1:length(annotations)
     
     ROI = mask(int32(y):int32(min(y+h,n)), int32(x):int32(min(x+w,m)));
     
-    if (sum(ROI(:))>50)
+    if (sum(ROI(:))>5)
         if (strcmp(Signs{i},'A')==1)
             corrResult = applyTemplateMask (ROI, upTriangModel);
             categories{length(categories)+1} = 'Up Triangular Signal';
