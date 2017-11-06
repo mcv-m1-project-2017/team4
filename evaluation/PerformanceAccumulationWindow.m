@@ -25,11 +25,14 @@ function [TP,FN,FP] = PerformanceAccumulationWindow(detections, annotations)
     TP = 0;
     for i=1:size(annotations,1),
         for j=1:size(detections,1),
-            if detectionsUsed(j)==0 && RoiOverlapping(annotations(i), detections(j)) > 0.5
-                TP = TP+1;
-                detectionsUsed(j) = 1;
-                annotationsUsed(i) = 1;
-            end
+          if 0 == size(detections(j).x,1)
+            continue
+          end % if there is no detection
+          if detectionsUsed(j)==0 && RoiOverlapping(annotations(i), detections(j)) > 0.5
+              TP = TP+1;
+              detectionsUsed(j) = 1;
+              annotationsUsed(i) = 1;
+          end
         end
     end
     FN = length(find(annotationsUsed==0));

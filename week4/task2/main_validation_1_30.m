@@ -7,7 +7,7 @@ do_plots = false;
 addpath(genpath('..'));
 
 % Set paths (JON)
-dataset = 'test';
+dataset = 'validation';
 root = '../../../';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
@@ -39,7 +39,7 @@ scales = 1:0.5:5;
 
 % For each mask
 % for i = 1:size(inputMasks,1)
-for i = 1:size(inputMasks,1)
+for i = 1:30
   tic
   % Load image
   inputMaskObject = inputMasks(i);
@@ -131,7 +131,7 @@ for i = 1:size(inputMasks,1)
   oMaskPath = fullfile(tmpPath, inputMaskObject.name);
   sprintf('Writing in %s', oMaskPath)
   oMask = iMask & cancellingMaskComplete;
-  imshow(cancellingMaskComplete,[])
+  %imshow(cancellingMaskComplete,[])
   imwrite(oMask, oMaskPath);
 
   % Save regions

@@ -7,7 +7,7 @@ do_plots = false;
 addpath(genpath('..'));
 
 % Set paths (JON)
-dataset = 'test';
+dataset = 'validation';
 root = '../../../';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
@@ -17,7 +17,7 @@ groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 
 %groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
 % groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
 
-tmpPath =  fullfile(root, 'datasets', 'trafficsigns', 'tmp2', dataset);
+tmpPath =  fullfile(root, 'datasets', 'trafficsigns', 'tmp', dataset);
 mkdir(tmpPath)
 
 % Get all the files
@@ -61,7 +61,7 @@ for i = 1:size(inputMasks,1)
   cancellingMaskComplete = false(size(iMask));
   for t = 1:size(models,3)
     % If there is nothing skip step
-    if isnan(sum(iMask(:))) | sum(iMask(:)) == 0
+    if isnan(sum(iMask(:))) || sum(iMask(:)) == 0
       continue
     end
 
@@ -117,7 +117,7 @@ for i = 1:size(inputMasks,1)
       for position = 1:size(posy)
         cancellingMask(posy(position), posx(position)) = true;
       end % for each position
-      cancellingMask = imdilate(cancellingMask, logical(imresize(model,1.5)));
+      cancellingMask = imdilate(cancellingMask, model);
       cancellingMaskComplete = cancellingMaskComplete | cancellingMask;
 
       % Update regions for this mask
