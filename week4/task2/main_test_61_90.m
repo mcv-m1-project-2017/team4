@@ -7,7 +7,7 @@ do_plots = false;
 addpath(genpath('..'));
 
 % Set paths (JON)
-dataset = 'validation';
+dataset = 'test';
 root = '../../../';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
@@ -39,7 +39,7 @@ scales = 1:0.5:5;
 
 % For each mask
 % for i = 1:size(inputMasks,1)
-for i = 84:90
+for i = 61:90
   tic
   % Load image
   inputMaskObject = inputMasks(i);
@@ -138,16 +138,33 @@ for i = 84:90
   name = strsplit(inputMaskObject.name, '.png');
   name = name{1};
   region_path = fullfile(tmpPath, strcat(name, '.mat'));
-  windowCandidates = struct('x',[],'y',[], 'w', [], 'h', []);
-  for region = 1:size(regionsAll)
-    r = regionsAll(region,:);
-    windowCandidates(region).y = r(1);
-    windowCandidates(region).x = r(2);
-    windowCandidates(region).w = r(3);
-    windowCandidates(region).h = r(4);
-  end % for each region
+  % windowCandidates = struct('x',[],'y',[], 'w', [], 'h', []);
+  % for region = 1:size(regionsAll)
+  %   r = regionsAll(region,:);
+  %   windowCandidates(region).y = r(1);
+  %   windowCandidates(region).x = r(2);
+  %   windowCandidates(region).w = r(3);
+  %   windowCandidates(region).h = r(4);
+  % end % for each region
+  % sprintf('Writing in %s, %d candidates', region_path, size(windowCandidates,1))
+  % save(region_path, 'windowCandidates');
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % SAVE REGIONS 2
+  name = strsplit(inputMaskObject.name, '.png');
+  name = name{1};
+  region_path = fullfile(tmpPath, strcat(name, '.mat'));
+  % Allocate outputs and check if any CC have been detected
+  windowCandidates = struct([]);
+  % Compute new CCs for 'constrainedMask'
+  CC_constrMask = bwconncomp(oMask);
+  CC_constrMask_stats = regionprops(CC_constrMask, 'BoundingBox');
+  % Generate output structure (I cannot think of a method w/o for loop..)
+  [windowCandidates] = createListOfWindows(CC_constrMask_stats);
+  % Only the CC with indices in the outIdx are believed to be signals
   sprintf('Writing in %s, %d candidates', region_path, size(windowCandidates,1))
   save(region_path, 'windowCandidates');
+
 
   if do_plots
     figure(1)

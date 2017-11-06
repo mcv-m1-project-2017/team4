@@ -39,7 +39,7 @@ scales = 1:0.5:5;
 
 % For each mask
 % for i = 1:size(inputMasks,1)
-for i = 1:30
+for i = 20:30
   tic
   % Load image
   inputMaskObject = inputMasks(i);
