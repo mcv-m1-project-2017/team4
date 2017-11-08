@@ -9,7 +9,7 @@ threshold = 0.90;
 
 load('formModels.mat')
 
-dataset = 'validation';
+dataset = 'test';
 % Add repository functions to path
 addpath(genpath('../../../'));
 
@@ -18,7 +18,7 @@ root = '../../../';
 % inputMasksPath = fullfile(root, 'm1-results', 'week3', 'm1', dataset);
 inputMasksPath = fullfile(root, 'm1-results', 'week3', dataset,'method1');
 % groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
-groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
+% groundThruthPath = fullfile(root, 'datasets', 'trafficsigns', dataset, 'mask');
 tmpPath =  fullfile(root, 'datasets', 'trafficsigns', 'tmp', dataset);
 mkdir(tmpPath)
 
@@ -26,7 +26,7 @@ resultFolder = fullfile(root, 'm1-results', 'week4', 'task2a', dataset);
 
 % Get all the files
 inputMasks = dir(fullfile(inputMasksPath, '*.png'));
-gtMasks = dir(fullfile(groundThruthPath, '*.png'));
+% gtMasks = dir(fullfile(groundThruthPath, '*.png'));
 
 processingTime = [];
 % for i = 1:size(inputMasks,1)
@@ -36,11 +36,11 @@ for i = 1:size(inputMasks,1)
     inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
     inMask = imread(inputMaskPath);
     
-    gtMaskObject = gtMasks(i);
-    gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
-    gtMask = imread(gtMaskPath);
-    % Convert it to logical (faster)
-    gtMask = gtMask > 0;
+%     gtMaskObject = gtMasks(i);
+%     gtMaskPath = fullfile(groundThruthPath, gtMaskObject.name);
+%     gtMask = imread(gtMaskPath);
+%     % Convert it to logical (faster)
+%     gtMask = gtMask > 0;
     
     % DO ALL THE MAGIC HERE
     %   iMask = zeros(400,400);
