@@ -127,6 +127,11 @@ for i = 1:size(files,1)
         [CC, CC_stats] = computeCC_regionProps(filteredMask);
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
             CC, CC_stats, geometricFeatures, params);
+        
+    elseif (method_num == 4)
+        [filteredMask] = test_watershed(image, geometricFeatures, params);
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [windowCandidates] = createListOfWindows(CC_stats);
     end
     
     % Evaluation
