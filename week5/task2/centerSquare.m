@@ -12,12 +12,12 @@ function [cy cx] = centerSquare(image)
     %xlabel('\theta'), ylabel('\rho');
     %axis on, axis normal, hold on;
 
-    P  = houghpeaks(H,10,'threshold',ceil(0.15*max(H(:))));
+    P  = houghpeaks(H,20,'threshold',ceil(0.15*max(H(:))));
     %x = T(P(:,2)); y = R(P(:,1));
     %plot(x,y,'s','color','white');
         
     l = min(size(BW,1), size(BW,2));
-    lines = houghlines(BW,T,R,P,'FillGap',.2*l,'MinLength',.3*l);
+    lines = houghlines(BW,T,R,P,'FillGap',.4*l,'MinLength',.5*l);
     if do_plots
         figure, imshow(BW), hold on
     end
