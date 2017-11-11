@@ -68,7 +68,7 @@ regProps = regionprops(L, 'Area', 'BoundingBox', 'Centroid');
 removeIdx = find([regProps.Area] > CC_maxArea);
 watershedRefined = L;
 regProps_refined = regProps;
-for r = 1:length(removeIdx)
+for r = length(removeIdx):1
     watershedRefined(watershedRefined == removeIdx(r)) = 0;
     regProps_refined(removeIdx(r)) = [];
 end
