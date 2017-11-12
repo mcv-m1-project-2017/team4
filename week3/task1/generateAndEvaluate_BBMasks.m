@@ -177,7 +177,7 @@ for i = 1:size(files,1)
         % 3 - Geometrical constraints
         [CC, CC_stats] = computeCC_regionProps(filteredMask);
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
-            CC, CC_stats, geometricFeatures, params);
+            CC, CC_stats, geometricFeatures, params, 0);
         
     elseif (method_num == 8) % WS + HSV + morph. + geom. const + corr. TM
         % 1 - Watershed + HSV
@@ -192,7 +192,7 @@ for i = 1:size(files,1)
         % 3 - Geometrical constraints
         [CC, CC_stats] = computeCC_regionProps(filteredMask);
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
-            CC, CC_stats, geometricFeatures, params);
+            CC, CC_stats, geometricFeatures, params,0);
         
         % 4 - Correlation Template Matching (method 1/week4)
         [filteredMask, windowCandidates] = applyTemplateMatching(filteredMask,...
