@@ -20,15 +20,15 @@ gtMasks = dir(fullfile(gtMasksPath, '*.png'));
 
 
 %Get models
-tri_down = uint8( imread('/tmp/test/2_1.png') );
-tri_up = uint8( imread('/tmp/test/18_1.png') );
-squ = uint8( imread('/tmp/test/7_1.png') );
+tri_down = uint8( imread('tri_down.png') );
+tri_up = uint8( imread('tri_up.png') );
+squ = uint8( imread('squ.png') );
 
 addpath(genpath('../../../'));
 load('GeometricFeatures_train.mat');
 load('GeometricConstraints_params_v2.mat');
 
-s = 2;
+s = 42;
 
 pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
 processingTimes = [];
