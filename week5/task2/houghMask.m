@@ -68,17 +68,22 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
     if model_found
         tly = max(tly,1);
         tlx = max(tlx,1);
+        disp_mask_size = size(mask)
         mask(tly:(tly+m-1), tlx:(tlx+n-1)) = resizedModel;
+        disp_resizedModel = size(resizedModel)
+        disp_mask_size = size(mask)
     end % if model is found
 
     % FIXME: delete the next two lines
-   path = fullfile(opath, [num2str(round(rand(1)*10000)) '_' num2str(region) '_t.png']);
-   imwrite(mask, path);
+%   path = fullfile(opath, [num2str(round(rand(1)*10000)) '_' num2str(region) '_t.png']);
+%   imwrite(mask, path);
 
-%    imshow(mask,[])
-% FIXME: figure out how to save the mask
-%    pause(3)
+    % FIXME: figure out how to save the mask
     % Save mask
+%    size(mask)
+    disp_signalMask_size = size(signalMask)
+    %final(minr:maxr, minc:maxc,:) = mask(tly:(tly+m-1), tlx:(tlx+n-1));
+
 % %    disp_size_mask = size(mask)
 %     [minr, maxr, minc, maxc]
 %     [-minr+maxr, -minc+maxc]
@@ -96,4 +101,5 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
 %     k = k + 1;
 %
   end  % for each region proposal
+
 end % function
