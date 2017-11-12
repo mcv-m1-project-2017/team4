@@ -13,7 +13,7 @@ col_med = colorSegmentation(med_I);
 filt_colMed = imfill(col_med,'holes');
 filt_colMed_open = imopen(filt_colMed, strel('square', 20));
 
-% INVERSE OF DISTANCE TRANSFORM AND WATERSHED (conn = 4)
+% INVERSE OF DISTANCE TRANSFORM AND WATERSHED)
 % Separates overlapped CC ==> APPLY BEFORE GEOMETRICAL CONSTRAINTS!
 DT = bwdist(~filt_colMed_open);
 DT_compl = -DT;

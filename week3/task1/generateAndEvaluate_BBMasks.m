@@ -1,5 +1,5 @@
 function [evalParams_pixel, evalParams_window] =...
-    generateAndEvaluate_BBMasks(mode, geometricFeatures, params, dataset, method_num)
+    generateAndEvaluate_BBMasks(mode, geometricFeatures, params, dataset, method_num, week_num)
 % GENERATEANDEVALUATE_BBMASKS: process images in 'dataset' to evaluate the
 % performance of the method number 'method_num' and store the detection
 % windows and pixel masks generated.
@@ -22,6 +22,9 @@ function [evalParams_pixel, evalParams_window] =...
 %       - method_num:               reference to method used to process the
 %                                   images (and also to the define a proper path).
 %
+%       - week_num:                 number of week (to store results in the
+%                                   appropiate folder.
+%
 %   Output parameters
 %
 %       - evalParams_pixel:         pixel-based evaluation measurements:
@@ -43,6 +46,8 @@ function [evalParams_pixel, evalParams_window] =...
 %
 %   Project M1/Block3
 %   -----------------
+%
+% Note: updated for week 5 with combination of previous methods
 
 %% Initialization
 addpath(genpath('../../../'));
@@ -71,8 +76,8 @@ path = fullfile(root, 'datasets', 'trafficsigns', dataset);
 
 % Method 1 ==> CCL
 % Method 2, 3 and 4 (sliding window: 'standard', 'integral', 'convolution'
-resultFolder =  fullfile(root, 'm1-results', 'week3', dataset,...
-    ['method', num2str(method_num)]);
+resultFolder =  fullfile(root, 'm1-results', ['week', num2str(week_num)],...
+    dataset, ['method', num2str(method_num)]);
 
 % Get image files
 files = dir(strcat(path, '/*.jpg'));
@@ -128,10 +133,73 @@ for i = 1:size(files,1)
         [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
             CC, CC_stats, geometricFeatures, params);
         
-    elseif (method_num == 4)
+    elseif (method_num == 4) % Naive Watershed to split overlap regions 
+        % (does not work)
         [filteredMask] = test_watershed(image, geometricFeatures, params);
         [CC, CC_stats] = computeCC_regionProps(filteredMask);
         [windowCandidates] = createListOfWindows(CC_stats);
+        
+    elseif (method_num == 5) % HSV colour segmentation + geometrical constraints
+        % 1 - HSV colour segmentation
+        filteredMask = segmentationMask; % Already computed above.
+        
+        % 2 - Geometrical constraints
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
+            CC, CC_stats, geometricFeatures, params, 1);
+        
+    elseif (method_num == 6) % Watershed + HSV + geometrical constraints
+        % 1 - Watershed + HSV
+        % Two latter params: min.overlap WS region candidate and minimum
+        % area (very relaxed, open regions)
+        [filteredMask, windowCandidates] =...
+            watershed_hsvColourSegmentation(image,...
+            geometricFeatures,params, 0.18, 25);
+        
+        % 2 - Geometrical constraints (intrinsically applied above for
+        % window-based. Only applies to pixel-based (do not change
+        % 'windowCandidates')
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [filteredMask, ~, ~] = applyGeometricalConstraints(filteredMask,...
+            CC, CC_stats, geometricFeatures, params, 1);
+        filteredMask = bwareaopen(filteredMask,25);
+        
+    elseif (method_num == 7) % Watershed + HSV + morph. + geom. constraints
+        % 1 - Watershed + HSV
+        [filteredMask, ~] =...
+            watershed_hsvColourSegmentation(image,...
+            geometricFeatures, 0.18, 25);
+        
+        % 2 - Morphology
+        filteredMask = imfill(filteredMask, 'holes');
+        filteredMask = imopen(filteredMask, strel('square', 20));
+        
+        % 3 - Geometrical constraints
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
+            CC, CC_stats, geometricFeatures, params);
+        
+    elseif (method_num == 8) % WS + HSV + morph. + geom. const + corr. TM
+        % 1 - Watershed + HSV
+        [filteredMask, ~] =...
+            watershed_hsvColourSegmentation(image,...
+            geometricFeatures, 0.18, 25);
+        
+        % 2 - Morphology
+        filteredMask = imfill(filteredMask, 'holes');
+        filteredMask = imopen(filteredMask, strel('square', 20));
+        
+        % 3 - Geometrical constraints
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
+            CC, CC_stats, geometricFeatures, params);
+        
+        % 4 - Correlation Template Matching (method 1/week4)
+        [filteredMask, windowCandidates] = applyTemplateMatching(filteredMask,...
+            windowCandidates);
+        
+    elseif (method_num == 9) % WS + HSV + morph. + geom.Constr + DT TM
+        % ADD DISTANCE TRANSFORM "APPLY_DTTM" function (if there is time)
     end
     
     % Evaluation
@@ -140,14 +208,14 @@ for i = 1:size(files,1)
             fprintf('evaluatePixel: the ''test'' set cannot be evaluated (no GT labels)\n');
         else
             time = toc;
-            %Show images in figure
-            if (plotImgs)
-                
+            % Show images in figure
+            if (plotImgs)              
                 subplot(2,2,1), imshow(image);
                 subplot(2,2,2), imshow(segmentationMask);
                 subplot(2,2,4), imshow(filteredMask_3);
+                
                 if (plotGran)
-                    %Compute image granulometry
+                    % Compute image granulometry
                     maxSize = 30;
                     x =((1-maxSize):maxSize);
                     pecstrum = granulometry(filteredMask_3,'diamond',maxSize);
@@ -175,16 +243,10 @@ for i = 1:size(files,1)
     if (evaluateWindow)
         if (strcmp(dataset, 'test'))
             fprintf('evaluateWindow: the ''test'' set cannot be evaluated (no GT labels)\n');
-            if (size(windowCandidates,1) > 1 || size(windowCandidates,2) > 1)
-                fprintf('debug here\n');
-            end
         else
             % Load annotations (from txt file defining GT' bounding boxes)
             gtFile = strcat(path, '/gt/gt.', strrep(files(i).name, 'jpg', 'txt'));
             [annotations, ~] = LoadAnnotations(gtFile);
-            if(size(annotations,1) > 1 || size(annotations,2) > 1)
-                fprintf('check this\n');
-            end
             
             % Compute TP, FN and FP
             [localWindowTP, localWindowFN, localWindowFP] =...
@@ -195,7 +257,6 @@ for i = 1:size(files,1)
             windowFP = windowFP + localWindowFP;
         end
     end
-    
     
     % Save .mat with 'windowCandidates' and mask in their respective paths
     if (exist(resultFolder, 'dir') == 0)

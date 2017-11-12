@@ -10,6 +10,9 @@ CC_maxArea = geometricFeatures(2);	% Maximum  "  "    "
 conn = 8;                           % Watershed region connectivity (8 default)
 
 %% Step  1: read in image and compute gradient magnitude
+% medianRGB = medfilt3(RGB_image); %avoid this, accounts for 75% of
+% processing time (Matlab's implementation is way faster but not included
+% in the 2015b server' matlab. 18 sec vs only 1.44....)
 medianRGB = medfilt3(RGB_image);
 HSV = rgb2hsv(medianRGB);
 V_channel = HSV(:,:,3);
@@ -64,11 +67,14 @@ gradmag2 = imimposemin(gradmag, bgm | fgm4);
 L = watershed(gradmag2, conn);
 
 %% Step 5: refinement; only return those regions whose size is feasible
-regProps = regionprops(L, 'Area', 'BoundingBox', 'Centroid');
+regProps = regionprops(L, 'Area', 'BoundingBox', 'Centroid', 'PixelIdxList');
 removeIdx = find([regProps.Area] > CC_maxArea);
 watershedRefined = L;
 regProps_refined = regProps;
-for r = length(removeIdx):1
-    watershedRefined(watershedRefined == removeIdx(r)) = 0;
+for r = 1:length(removeIdx)
+    watershedRefined(regProps_refined(removeIdx(r)).PixelIdxList) = 0;
     regProps_refined(removeIdx(r)) = [];
+    % Update indices to be removed (otherwise we will remove undesired
+    % regions!).
+    removeIdx = removeIdx - 1;
 end
