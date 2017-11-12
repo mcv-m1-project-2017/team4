@@ -1,4 +1,4 @@
-function [ masks ] = houghMask(image, regionProposals, models)
+function [ masks ] = houghMask(image, regionProposals, models, opath)
 % Hough Mask: Apply a Hough Transform over an image using the given models over some region proposals.
 %
 %{
@@ -19,17 +19,17 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
 %}
   rp = regionProposals;  % alias
   extraMargin = 10;
-  k = 1; % output index
 
+  k = 1; % output index
   masks = zeros(size(image,1),size(image,2), []);
 
-  for j = 1:size(rp,1)
+  for region = 1:size(rp,1)
   %for j = b:b %1:size(rp,1)
     %fprintf('\tChecking blob %d\n', j)
-    minr = round(max(rp(j).BoundingBox(2) - extraMargin, 1));
-    minc = round(max(rp(j).BoundingBox(1) - extraMargin, 1));
-    maxr = round(min(rp(j).BoundingBox(2) + rp(j).BoundingBox(4) + extraMargin, size(image,1)));
-    maxc = round(min(rp(j).BoundingBox(1) + rp(j).BoundingBox(3) + extraMargin, size(image,2)));
+    minr = round(max(rp(region).BoundingBox(2) - extraMargin, 1));
+    minc = round(max(rp(region).BoundingBox(1) - extraMargin, 1));
+    maxr = round(min(rp(region).BoundingBox(2) + rp(region).BoundingBox(4) + extraMargin, size(image,1)));
+    maxc = round(min(rp(region).BoundingBox(1) + rp(region).BoundingBox(3) + extraMargin, size(image,2)));
     signalMask = image(minr:maxr, minc:maxc,:);
 
     m = size(signalMask,1);
@@ -71,7 +71,13 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
         mask(tly:(tly+m-1), tlx:(tlx+n-1)) = resizedModel;
     end % if model is found
 
-    % FIXME: figure out how to save the mask
+    % FIXME: delete the next two lines
+   path = fullfile(opath, [num2str(round(rand(1)*10000)) '_' num2str(region) '_t.png']);
+   imwrite(mask, path);
+
+%    imshow(mask,[])
+% FIXME: figure out how to save the mask
+%    pause(3)
     % Save mask
 % %    disp_size_mask = size(mask)
 %     [minr, maxr, minc, maxc]

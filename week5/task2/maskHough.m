@@ -20,7 +20,7 @@ tri_down = uint8( imread('/tmp/test/2_1.png') );
 tri_up = uint8( imread('/tmp/test/18_1.png') );
 squ = uint8( imread('/tmp/test/7_1.png') );
 circ = uint8( imread('/tmp/test/1_1.png') );
-  
+
 s =7;
 b = 2;
 
@@ -36,12 +36,12 @@ for i = 1:size(inputMasks,1)
   frame = imread(framePath);
 
   %figure, imshow(iMask)
- 
+
   CC = bwconncomp(iMask);
   rp = regionprops(CC, 'BoundingBox');
-  
+
   extraMargin = 10;
-  
+
 
   for j = 1:size(rp,1)
   %for j = b:b %1:size(rp,1)
@@ -52,11 +52,11 @@ for i = 1:size(inputMasks,1)
     maxc = round(min(rp(j).BoundingBox(1) + rp(j).BoundingBox(3) + extraMargin, size(frame,2)));
     signalMask = frame(minr:maxr, minc:maxc,:);
     imwrite(signalMask, ['/tmp/test5/' num2str(i) '_' num2str(j) '_o.png']);
-                
+
     m = size(signalMask,1);
     n = size(signalMask,2);
     mask = zeros(m,n);
-        
+
     found = false;
     %[sy, sx] = centerSquare(signalMask);
     sy = -1; sx = -1;
@@ -79,15 +79,15 @@ for i = 1:size(inputMasks,1)
             end
        end
     end
-  
+
     if found
         tly = max(tly,1);
         tlx = max(tlx,1);
         mask(tly:(tly+m-1), tlx:(tlx+n-1)) = resizedModel;
     end
-              
+    
     imwrite(mask, ['/tmp/test5/' num2str(i) '_' num2str(j) '_t.png']);
- 
+
    end
 
 end

@@ -21,10 +21,12 @@ outPath = fullfile(root, 'datasets', 'trafficsigns', 'tmp', 'test5');
 % models.square = uint8(imread('/tmp/test/7_1.png'));
 % models.circular = uint8(imread('/tmp/test/1_1.png'));
 
-models.triangular_up = ones(100);
-models.triangular_down = ones(100);
+triangle = strel('diamond', 49).Neighborhood;
+up_mask = [ones(49,99); zeros(50,99)];
+models.triangular_up = triangle & up_mask;
+models.triangular_down = triangle & ~up_mask;
 models.square = ones(100);
-models.circular = ones(100);
+models.circular = strel('disk', 49, 0).Neighborhood;
 
 for i = 1:size(inputMasks,1)
   % Get an image and its mask
@@ -43,11 +45,12 @@ for i = 1:size(inputMasks,1)
 
   % Get mask and save them to a given path
 
-  masks = houghMask(image, rp, models);
+  houghMask(image, rp, models, outPath);
+  %masks = houghMask(image, rp, models, outPath);
 
   % Save results
-  for m = 1:size(masks, 3)
-    maskPath = fullfile(outPath, [num2str(i) '_' num2str(m) '_t.png']);
-    imwrite(masks(:,:,m), maskPath);
-  end % for each mask
+%   for m = 1:size(masks, 3)
+%     maskPath = fullfile(outPath, [num2str(i) '_' num2str(m) '_t.png']);
+%     imwrite(masks(:,:,m), maskPath);
+%   end % for each mask
 end % for each inputMask
