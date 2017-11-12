@@ -154,7 +154,7 @@ for i = 1:size(files,1)
         % area (very relaxed, open regions)
         [filteredMask, windowCandidates] =...
             watershed_hsvColourSegmentation(image,...
-            geometricFeatures,params, 0.18, 25);
+            geometricFeatures, params, 0.15, 25);
         
         % 2 - Geometrical constraints (intrinsically applied above for
         % window-based. Only applies to pixel-based (do not change
@@ -168,7 +168,7 @@ for i = 1:size(files,1)
         % 1 - Watershed + HSV
         [filteredMask, ~] =...
             watershed_hsvColourSegmentation(image,...
-            geometricFeatures, 0.18, 25);
+            geometricFeatures, params, 0.15, 25);
         
         % 2 - Morphology
         filteredMask = imfill(filteredMask, 'holes');
@@ -183,7 +183,7 @@ for i = 1:size(files,1)
         % 1 - Watershed + HSV
         [filteredMask, ~] =...
             watershed_hsvColourSegmentation(image,...
-            geometricFeatures, 0.18, 25);
+            geometricFeatures, params, 0.15, 25);
         
         % 2 - Morphology
         filteredMask = imfill(filteredMask, 'holes');

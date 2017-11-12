@@ -64,9 +64,9 @@ for i = 1: WS_numRegions
         % ATTENTION: correct BB x and y coordinates! computed with respect
         % to the origin of the region not the whole image! Change 'x' and
         % 'y' fields for 'topLeftX+tmpX' and 'topLeftY+tmpY'
-%         if (size(tempWindowCandidate,1) > 1  || size(windowCandidates,1) > 1)
-%             fprintf('debug here');
-%         end
+        %         if (size(tempWindowCandidate,1) > 1  || size(windowCandidates,1) > 1)
+        %             fprintf('debug here');
+        %         end
         
         if(~isempty(tempWindowCandidate))
             for c = 1: size(tempWindowCandidate,1)
@@ -102,19 +102,19 @@ for i = 1: WS_numRegions
                     end
                 end
             end
-        end   
-            
-        else % Do not consider the CC's inside the watershed region, do nothing
-            % fprintf('Region num. %d discarded (overlap < thr.)\n', i); %
-            % DEBUG ONLY (line above)
-            % For pixel-based evaluation
-            discarded = discarded +1;
-            outputMask(ymin:ymax ,xmin:xmax) = regionColourMask;
-            
         end
         
+    else % Do not consider the CC's inside the watershed region, do nothing
+        % fprintf('Region num. %d discarded (overlap < thr.)\n', i); %
+        % DEBUG ONLY (line above)
+        % For pixel-based evaluation
+        discarded = discarded +1;
+        outputMask(ymin:ymax ,xmin:xmax) = regionColourMask;
         
-        
+    end
+    
+    
+    
 end
 fprintf('Discarded %d regions of %d==> %.2f%%\n', discarded,...
     WS_numRegions, (discarded/WS_numRegions)*100);
