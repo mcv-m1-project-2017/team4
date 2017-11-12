@@ -1,4 +1,4 @@
-function [ masks ] = houghMask(image, regionProposals, models, opath)
+function [ maskFinal ] = houghMask(image, regionProposals, models)
 % Hough Mask: Apply a Hough Transform over an image using the given models over some region proposals.
 %
 %{
@@ -21,7 +21,7 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
   extraMargin = 10;
 
   k = 1; % output index
-  masks = zeros(size(image,1),size(image,2), []);
+  maskFinal = false(size(image,1),size(image,2));
 
   for region = 1:size(rp,1)
   %for j = b:b %1:size(rp,1)
@@ -35,7 +35,6 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
     m = size(signalMask,1);
     n = size(signalMask,2);
     mask = zeros(m,n);
-    disp_size_mask = size(mask)
 
     model_found = false;
     %[sy, sx] = centerSquare(signalMask);
@@ -68,38 +67,24 @@ output: - masks: nxmxk binary matrices representing the resulting masks for each
     if model_found
         tly = max(tly,1);
         tlx = max(tlx,1);
+
+        % XXX: 'mask' is changing its size with this command
         disp_mask_size = size(mask)
         mask(tly:(tly+m-1), tlx:(tlx+n-1)) = resizedModel;
-        disp_resizedModel = size(resizedModel)
         disp_mask_size = size(mask)
     end % if model is found
 
-    % FIXME: delete the next two lines
+    % FIXME: delete the next 3 lines
+%    opath = fullfile(root, 'datasets', 'trafficsigns', 'tmp', 'test5');
 %   path = fullfile(opath, [num2str(round(rand(1)*10000)) '_' num2str(region) '_t.png']);
 %   imwrite(mask, path);
 
-    % FIXME: figure out how to save the mask
     % Save mask
-%    size(mask)
-    disp_signalMask_size = size(signalMask)
-    %final(minr:maxr, minc:maxc,:) = mask(tly:(tly+m-1), tlx:(tlx+n-1));
+    % BUG: 'mask' sometimes is not this size and there is a dimension mismatch on the next command
+    disp_size_maskFinal = size(maskFinal(minr:maxr, minc:maxc))
+    maskFinal(minr:maxr, minc:maxc) = maskFinal(minr:maxr, minc:maxc) | mask;
+    k = k + 1;
 
-% %    disp_size_mask = size(mask)
-%     [minr, maxr, minc, maxc]
-%     [-minr+maxr, -minc+maxc]
-%     disp_size_range = size(zeros(maxr-minr, maxc-minc))
-%
-% %    mmask(minr:maxr, minc:maxc,:) = mask
-%     k
-%     m = zeros(size(image,1), size(image,2));
-%     m(minr:maxr, minc:maxc, k) = mask;
-%     size(m)
-% %    disp_size_Croped_mask = size(masks(minr:maxr, minc:maxc,:))
-% %    masks(minr:maxr, minc:maxc, k) = mask;
-% %    size(masks)
-%     disp_saved = true
-%     k = k + 1;
-%
   end  % for each region proposal
 
 end % function

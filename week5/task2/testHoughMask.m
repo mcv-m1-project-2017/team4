@@ -12,6 +12,10 @@ fullImagePath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset);
 inputMasks = dir(fullfile(inputMasksPath, '*.png'));
 frames = dir(fullfile(fullImagePath, '*.jpg'));
 
+if size(inputMasks,1) == 0 | size(frames,1) == 0
+  error('No input data found. Check paths')
+end % if
+
 % Define a path to save resulting masks
 outPath = fullfile(root, 'datasets', 'trafficsigns', 'tmp', 'test5');
 
@@ -21,11 +25,12 @@ outPath = fullfile(root, 'datasets', 'trafficsigns', 'tmp', 'test5');
 % models.square = uint8(imread('/tmp/test/7_1.png'));
 % models.circular = uint8(imread('/tmp/test/1_1.png'));
 
+% Synthetize models
 triangle = strel('diamond', 49).Neighborhood;
 up_mask = [ones(49,99); zeros(50,99)];
+models.square = ones(100);
 models.triangular_up = triangle & up_mask;
 models.triangular_down = triangle & ~up_mask;
-models.square = ones(100);
 models.circular = strel('disk', 49, 0).Neighborhood;
 
 for i = 1:size(inputMasks,1)
@@ -43,14 +48,11 @@ for i = 1:size(inputMasks,1)
   CC = bwconncomp(iMask);
   rp = regionprops(CC, 'BoundingBox');
 
-  % Get mask and save them to a given path
-
-  houghMask(image, rp, models, outPath);
-  %masks = houghMask(image, rp, models, outPath);
+  % Get mask
+  mask = houghMask(image, rp, models);
+  size(mask)
 
   % Save results
-%   for m = 1:size(masks, 3)
-%     maskPath = fullfile(outPath, [num2str(i) '_' num2str(m) '_t.png']);
-%     imwrite(masks(:,:,m), maskPath);
-%   end % for each mask
+  maskPath = fullfile(outPath, inputMaskObject.name);
+  imwrite(mask, maskPath);
 end % for each inputMask
