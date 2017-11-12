@@ -24,8 +24,11 @@ function [cy cx] = centerTriangleUp(image)
     max_len = 0;
     points1 = []; points2 = [];
     for k = 1:length(lines)
-        points1 = [points1; lines(k).point1];
-        points2 = [points2; lines(k).point2];
+        isVert = abs(lines(k).point1(2)-lines(k).point2(2)) < round(l*.03);
+        if ~isVert
+            points1 = [points1; lines(k).point1];
+            points2 = [points2; lines(k).point2];
+        end
     end
          
     for k = 1:length(lines)

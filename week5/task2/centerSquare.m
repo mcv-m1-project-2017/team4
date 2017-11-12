@@ -5,27 +5,32 @@ function [cy cx] = centerSquare(image)
     
     BW = edge(rgb2gray(image),'canny');
     %BW = imdilate(BW,strel('square',2));
-
+    l = min(size(BW,1), size(BW,2))
+ 
     [H,T,R] = hough(BW);
     %imshow(H,[],'XData',T,'YData',R,...
     %            'InitialMagnification','fit');
     %xlabel('\theta'), ylabel('\rho');
     %axis on, axis normal, hold on;
 
-    P  = houghpeaks(H,20,'threshold',ceil(0.15*max(H(:))));
+    P  = houghpeaks(H,round(.08*l),'threshold',ceil(0.15*max(H(:))));
     %x = T(P(:,2)); y = R(P(:,1));
     %plot(x,y,'s','color','white');
         
-    l = min(size(BW,1), size(BW,2));
-    lines = houghlines(BW,T,R,P,'FillGap',.4*l,'MinLength',.5*l);
+   
+    lines = houghlines(BW,T,R,P,'FillGap',.2*l,'MinLength',.5*l);
     if do_plots
         figure, imshow(BW), hold on
     end
     max_len = 0;
     points1 = []; points2 = [];
     for k = 1:length(lines)
-        points1 = [points1; lines(k).point1];
-        points2 = [points2; lines(k).point2];
+        isVert = abs(lines(k).point1(2)-lines(k).point2(2)) < 10;
+        isHor = abs(lines(k).point1(1)-lines(k).point2(1)) < 10;
+        if isVert || isHor
+            points1 = [points1; lines(k).point1];
+            points2 = [points2; lines(k).point2];
+        end
     end
          
     for k = 1:length(lines)

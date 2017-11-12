@@ -3,26 +3,35 @@ do_plots = false;
 
 % Add repository functions to path
 addpath(genpath('..'));
+addpath(genpath('../task2CircularHough'));
+
 
 % Set paths
 dataset = 'train';
-root = '../../../';
+root = '../../..';
 inputMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'm1', dataset);
 fullImagePath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset);
+gtMasksPath = fullfile(root, 'datasets', 'trafficsigns', 'split', dataset, 'mask');
 
 % Get all the files
 inputMasks = dir(fullfile(inputMasksPath, '*.png'));
 frames = dir(fullfile(fullImagePath, '*.jpg'));
+gtMasks = dir(fullfile(gtMasksPath, '*.png'));
 
 
 %Get models
 tri_down = uint8( imread('/tmp/test/2_1.png') );
 tri_up = uint8( imread('/tmp/test/18_1.png') );
 squ = uint8( imread('/tmp/test/7_1.png') );
-circ = uint8( imread('/tmp/test/1_1.png') );
-  
-s =7;
-b = 2;
+
+addpath(genpath('../../../'));
+load('GeometricFeatures_train.mat');
+load('GeometricConstraints_params_v2.mat');
+
+s = 2;
+
+pixelTP=0; pixelFN=0; pixelFP=0; pixelTN=0;
+processingTimes = [];
 
 for i = 1:size(inputMasks,1)
 %for i = s:s %1:size(inputMasks,1)
@@ -30,64 +39,66 @@ for i = 1:size(inputMasks,1)
   inputMaskObject = inputMasks(i);
   inputMaskPath = fullfile(inputMasksPath, inputMaskObject.name);
   iMask = imread(inputMaskPath);
-
+  originalMask = iMask;
+  
   frameObject = frames(i);
   framePath = fullfile(fullImagePath, frameObject.name);
   frame = imread(framePath);
 
+  gtMaskObject = gtMasks(i);
+  gtMaskPath = fullfile(gtMasksPath, gtMaskObject.name);
+  gtMask = uint8(imread(gtMaskPath)) * 255;
+  
   %figure, imshow(iMask)
  
-  CC = bwconncomp(iMask);
-  rp = regionprops(CC, 'BoundingBox');
+  imwrite(frame, ['/tmp/test6/' num2str(i) '_o.png']);
+  imwrite(iMask, ['/tmp/test6/' num2str(i) '_o_m.png']);
+  imwrite(gtMask, ['/tmp/test6/' num2str(i) '_o_gt.png']);
   
-  extraMargin = 10;
+  tic;
   
+  linearMask = linearHough(frame, iMask, tri_up, tri_down, squ, i);
+  linearMask = linearMask(1:size(frame,1), 1:size(frame,2));
+  
+  %{
+  circularMask = circularHough(frame);
+  [CC, CC_stats] = computeCC_regionProps(circularMask);
+  [circularMask, windowCandidates] = applyGeometricalConstraints(circularMask,...
+            CC, CC_stats, geometricFeatures, params);
+  %}
+  
+  mask = linearMask; % + circularMask;
+  %imshow(mask);
+  time = toc;
+  
+  processingTimes = [processingTimes; time];
+  
+  %Compute image TP, FP, FN, TN
+  
+  [localPixelTP, localPixelFP, localPixelFN, localPixelTN] = PerformanceAccumulationPixel(mask, originalMask);
+  pixelTP = pixelTP + localPixelTP;
+  pixelFP = pixelFP + localPixelFP;
+  pixelFN = pixelFN + localPixelFN;
+  pixelTN = pixelTN + localPixelTN;
 
-  for j = 1:size(rp,1)
-  %for j = b:b %1:size(rp,1)
-    fprintf('\tChecking blob %d\n', j)
-    minr = round(max(rp(j).BoundingBox(2) - extraMargin, 1));
-    minc = round(max(rp(j).BoundingBox(1) - extraMargin, 1));
-    maxr = round(min(rp(j).BoundingBox(2) + rp(j).BoundingBox(4) + extraMargin, size(frame,1)));
-    maxc = round(min(rp(j).BoundingBox(1) + rp(j).BoundingBox(3) + extraMargin, size(frame,2)));
-    signalMask = frame(minr:maxr, minc:maxc,:);
-    imwrite(signalMask, ['/tmp/test5/' num2str(i) '_' num2str(j) '_o.png']);
-                
-    m = size(signalMask,1);
-    n = size(signalMask,2);
-    mask = zeros(m,n);
-        
-    found = false;
-    %[sy, sx] = centerSquare(signalMask);
-    sy = -1; sx = -1;
-    if sy>0 && sx>0
-        resizedModel = imresize(squ, [m n]);
-        tly = tuy; tlx = tux;
-        found = true;
-    else
-       [tuy, tux] = centerTriangleUp(signalMask);
-       if tuy>0 && tux>0
-            resizedModel = imresize(tri_up, [m n]);
-            tly = tuy; tlx = tux;
-            found = true;
-       else
-           [tdy, tdx] = centerTriangleDown(signalMask);
-           if tdy>0 && tdx>0
-                resizedModel = imresize(tri_down, [m n]);
-                tly = tdy; tlx = tdx;
-                found = true;
-            end
-       end
-    end
-  
-    if found
-        tly = max(tly,1);
-        tlx = max(tlx,1);
-        mask(tly:(tly+m-1), tlx:(tlx+n-1)) = resizedModel;
-    end
-              
-    imwrite(mask, ['/tmp/test5/' num2str(i) '_' num2str(j) '_t.png']);
- 
-   end
+  imwrite(linearMask, ['/tmp/test6/' num2str(i) '_o_n.png']);
 
 end
+
+%Compute algorithm precision, accuracy, specificity, recall and fmeasure
+[pixelPrecision, pixelAccuracy, pixelSpecificity, pixelRecall] = PerformanceEvaluationPixel(pixelTP, pixelFP, pixelFN, pixelTN);
+FMeasure = 2*(pixelPrecision*pixelRecall)/(pixelPrecision+pixelRecall);
+total = pixelTP + pixelFP + pixelFN + pixelTN;
+pixelTP = pixelTP / total;
+pixelFP = pixelFP / total;
+pixelFN = pixelFN / total;
+
+%Get time per frame mean
+timePerFrame = mean(processingTimes);
+
+%Print results in array format
+% fprintf('Results with max thr.: %f and min thr.: %f\n', Max_thr(t),...
+%     Min_thr(t));
+fprintf('----------------------------------------------------\n');
+fprintf('Algorithm results: pixelPrecision; pixelAccuracy; pixelRecall; Fmeasure; pixelTP; pixelFP; pixelFN; timePerFrame');
+ [pixelPrecision pixelAccuracy pixelRecall FMeasure pixelTP pixelFP pixelFN timePerFrame]
