@@ -38,8 +38,7 @@ function [l1, l2, l3, l4] = findSquare(points1, points2)
                                                     dist4 = min([d41 d42 d43 d44]);
                                         
                                                     if dist4 < dth
-                                                        
-                                                         
+                                                                                               
                                                         
                                                         l1 = [points1(k1,:); points2(k1,:)];
                                                         l2 = [points1(k2,:); points2(k2,:)];
@@ -57,42 +56,10 @@ function [l1, l2, l3, l4] = findSquare(points1, points2)
                                end
                             end
                         end
-                        
                     end
                 end
                 
-            end
+           end
+
         end
-%{
-        l1 = []; l2 = []; l3 = []; l4 = [];
-        if length(points1)>3 && length(points2)>3
-            dth = 15;
-            for k1 = 1:length(points1)
-                for k2 = 1:length(points1)
-                    dist1 = pdist([points2(k1,:); points1(k2,:)],'euclidean');
-                    if (k1 ~= k2) && (dist1 < dth)
-                        for k3 = 1:length(points2)
-                            dist2 = pdist([points2(k2,:); points2(k3,:)],'euclidean');
-                            if (k2 ~= k3) && (dist2 < dth)
-                                for k4 = 1:length(points1)
-                                    dist3 = pdist([points1(k3,:); points2(k4,:)],'euclidean');
-                                    if (k3 ~= k4) && (dist3 < dth)
-                                        dist4 = pdist([points1(k4,:); points1(k1,:)], 'euclidean');
-                                        if dist4 < dth
-                                            %if pdist([points2(k2,:); points2(k1,:)]) > 30
-                                                l1 = [points1(k1,:); points2(k1,:)];
-                                                l2 = [points2(k1,:); points2(k2,:)];
-                                                l3 = [points1(k3,:); points2(k2,:)];
-                                                l4 = [points1(k3,:); points1(k1,:)];
-                                            %end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    %}
 end

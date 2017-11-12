@@ -32,10 +32,10 @@ function [cy cx] = centerSquare(image)
             points2 = [points2; lines(k).point2];
         end
     end
-         
-    for k = 1:length(lines)
-        xy = [lines(k).point1; lines(k).point2];
-        if do_plots
+    
+    if do_plots
+        for k = 1:length(lines)
+            xy = [lines(k).point1; lines(k).point2];
             plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
             % Plot beginnings and ends of lines
             %plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
@@ -43,29 +43,29 @@ function [cy cx] = centerSquare(image)
         end
     end
 
-    [l1, l2, l3, l4] = findSquare(points1, points2);
-    if length(l1)>0 && length(l2)>0 && length(l3)>0
-        if do_plots
-           plot(l1(:,1),l1(:,2),'LineWidth',2,'Color','red');
-           plot(l2(:,1),l2(:,2),'LineWidth',2,'Color','red');
-           plot(l3(:,1),l3(:,2),'LineWidth',2,'Color','red');
-           plot(l4(:,1),l4(:,2),'LineWidth',2,'Color','red');
-        end
-        ys = [l1(1,1) l1(2,1) l2(1,1) l2(2,1) l3(1,1) l3(2,1) l4(1,1) l4(2,1)];
-        xs = [l1(1,2) l1(2,2) l2(1,2) l2(2,2) l3(1,2) l3(2,2) l4(1,2) l4(2,2)];
-        
-        %cy = mean(ys);
-        %cx = mean(xs);
-        miny = min(ys); maxy = max(ys);
-        minx = min(xs); maxx = max(xs);
-        if abs(maxy-miny)>(0.5*l) && abs(minx-maxx)>(0.5*l)
-            cy = miny;
-            cx = minx;
-        end
-               
-           
-       if do_plots
-           plot(cy, cx,'x','LineWidth',4,'Color','blue');
-       end
+  [l1, l2, l3, l4] = findSquare(points1, points2);
+  if length(l1)>0 && length(l2)>0 && length(l3)>0
+    if do_plots
+       plot(l1(:,1),l1(:,2),'LineWidth',2,'Color','red');
+       plot(l2(:,1),l2(:,2),'LineWidth',2,'Color','red');
+       plot(l3(:,1),l3(:,2),'LineWidth',2,'Color','red');
+       plot(l4(:,1),l4(:,2),'LineWidth',2,'Color','red');
     end
+    ys = [l1(1,1) l1(2,1) l2(1,1) l2(2,1) l3(1,1) l3(2,1) l4(1,1) l4(2,1)];
+    xs = [l1(1,2) l1(2,2) l2(1,2) l2(2,2) l3(1,2) l3(2,2) l4(1,2) l4(2,2)];
+    
+    %cy = mean(ys);
+    %cx = mean(xs);
+    miny = min(ys); maxy = max(ys);
+    minx = min(xs); maxx = max(xs);
+    if abs(maxy-miny)>(0.5*l) && abs(minx-maxx)>(0.5*l)
+      cy = miny;
+      cx = minx;
+    end
+         
+       
+     if do_plots
+       plot(cy, cx,'x','LineWidth',4,'Color','blue');
+     end
+  end
 end
