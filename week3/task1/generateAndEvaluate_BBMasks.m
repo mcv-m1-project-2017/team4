@@ -1,5 +1,6 @@
 function [evalParams_pixel, evalParams_window] =...
-    generateAndEvaluate_BBMasks(mode, geometricFeatures, params, dataset, method_num, week_num)
+    generateAndEvaluate_BBMasks(mode, geometricFeatures, params, dataset,...
+    method_num, week_num, WS_p1, WS_p2, WS_p3)
 % GENERATEANDEVALUATE_BBMASKS: process images in 'dataset' to evaluate the
 % performance of the method number 'method_num' and store the detection
 % windows and pixel masks generated.
@@ -154,7 +155,7 @@ for i = 1:size(files,1)
         % area (very relaxed, open regions)
         [filteredMask, windowCandidates] =...
             watershed_hsvColourSegmentation(image,...
-            geometricFeatures, params, 0.15, 25);
+            geometricFeatures, params, WS_p1, WS_p2, WS_p3);
         
         % 2 - Geometrical constraints (intrinsically applied above for
         % window-based. Only applies to pixel-based (do not change
@@ -162,13 +163,13 @@ for i = 1:size(files,1)
         [CC, CC_stats] = computeCC_regionProps(filteredMask);
         [filteredMask, ~, ~] = applyGeometricalConstraints(filteredMask,...
             CC, CC_stats, geometricFeatures, params, 1);
-        filteredMask = bwareaopen(filteredMask,25);
+        filteredMask = bwareaopen(filteredMask,WS_p2);
         
     elseif (method_num == 7) % Watershed + HSV + morph. + geom. constraints
         % 1 - Watershed + HSV
         [filteredMask, ~] =...
             watershed_hsvColourSegmentation(image,...
-            geometricFeatures, params, 0.15, 25);
+            geometricFeatures, params, WS_p1, WS_p2, WS_p3);
         
         % 2 - Morphology
         filteredMask = imfill(filteredMask, 'holes');
@@ -183,7 +184,7 @@ for i = 1:size(files,1)
         % 1 - Watershed + HSV
         [filteredMask, ~] =...
             watershed_hsvColourSegmentation(image,...
-            geometricFeatures, params, 0.15, 25);
+            geometricFeatures, params, WS_p1, WS_p2, WS_p3);
         
         % 2 - Morphology
         filteredMask = imfill(filteredMask, 'holes');
@@ -200,6 +201,53 @@ for i = 1:size(files,1)
         
     elseif (method_num == 9) % WS + HSV + morph. + geom.Constr + DT TM
         % ADD DISTANCE TRANSFORM "APPLY_DTTM" function (if there is time)
+        
+    elseif (method_num == 10) % Test a variant of watershed
+         % 1 - Watershed + HSV
+        % Two latter params: min.overlap WS region candidate and minimum
+        % area (very relaxed, open regions)
+        [filteredMask, ~] =...
+            watershed_hsvColourSegmentation(image,...
+            geometricFeatures, params, WS_p1, WS_p2, WS_p3);
+        
+        % 2 - Geometrical constraints (intrinsically applied above for
+        % window-based. Only applies to pixel-based (do not change
+        % 'windowCandidates')
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [filteredMask, windowCandidates, ~] = applyGeometricalConstraints(filteredMask,...
+            CC, CC_stats, geometricFeatures, params, 1);
+        filteredMask = bwareaopen(filteredMask,WS_p2);
+        
+        elseif (method_num == 11) % Test a variant of watershed
+         % 1 - Watershed + HSV
+        % Two latter params: min.overlap WS region candidate and minimum
+        % area (very relaxed, open regions)
+        [filteredMask, windowCandidates] =...
+            watershed_hsvColourSegmentation(image,...
+            geometricFeatures, params, WS_p1, WS_p2, WS_p3);
+        
+        % 2 - Geometrical constraints (intrinsically applied above for
+        % window-based. Only applies to pixel-based (do not change
+        % 'windowCandidates')
+        [CC, CC_stats] = computeCC_regionProps(filteredMask);
+        [filteredMask, ~, ~] = applyGeometricalConstraints(filteredMask,...
+            CC, CC_stats, geometricFeatures, params, 1);
+        filteredMask = bwareaopen(filteredMask,WS_p1, WS_p2, WS_p3);
+        
+    elseif (method_num == 12)
+        % HSV + 
+        filteredMask = imfill(segmentationMask, 'holes');
+  
+        filteredMask2 = imopen(filteredMask, strel('square', 20));
+
+        % Apply geometrical constraints to lower the number of FPs
+        [CC, CC_stats] = computeCC_regionProps(filteredMask2);
+        
+        [filteredMask3, windowCandidates, ~] = applyGeometricalConstraints(filteredMask2,...
+            CC, CC_stats, geometricFeatures, params,0);
+        filteredMask = filteredMask3;
+        [filteredMask, windowCandidates] = applyTemplateMatching(filteredMask,...
+            windowCandidates);
     end
     
     % Evaluation

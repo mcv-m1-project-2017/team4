@@ -1,5 +1,5 @@
 %% Test watershed regions + HSV colour segmentation to improve masks
-function [outputMask, windowCandidates] = watershed_hsvColourSegmentation(RGB_image, geometricFeatures, params, minOverlap, minArea)
+function [outputMask, windowCandidates] = watershed_hsvColourSegmentation(RGB_image, geometricFeatures, params, minOverlap, minArea, variant)
 
 % Call watershed and compute regions:
 gradientType = 'sobel';
@@ -39,6 +39,10 @@ for i = 1: WS_numRegions
     regionColourMask = colorSegmentation(rgb_regionCrop);
     % Use the bounding box of 'regionColourMask' as the
     % 'windowCandidate' and filter them regarding size
+    if (variant == 3)
+        regionColourMask = imfill(regionColourMask, 'holes');
+        regionColourMask = imopen(regionColourMask, strel('square', 20));
+    end
     
     % ADD A THRESHOLD BASED ON THE % OF WHITE PIXELS IN THE MASK
     % Those who are from a watershed region AND also fulfil HSV conditions
@@ -47,20 +51,48 @@ for i = 1: WS_numRegions
     bb_area = width * height;
     ok_percentage = ok_pixels/bb_area;
     
-    if (ok_percentage >= minOverlap) % Consider the CC's in the window as
-        % candidates and compute their BBs
-        % Apply geometrical constraints on AR (beware, this could be too
-        % strict). Remove it if the results are bad.
+    if (ok_percentage >= minOverlap)
         
-        % Before: filter very small CC's (remember that TP may still be
-        % empty (no hole filling applied w/o morphology))
-        regionColourMask = bwareaopen(regionColourMask, minArea, 4);
-        [CC, CC_stats] = computeCC_regionProps(regionColourMask);
-        [regionColourMask, tempWindowCandidate, ~] =...
-            applyGeometricalConstraints(regionColourMask, CC, CC_stats,...
-            geometricFeatures, params, 1);
-        outputMask(ymin:ymax ,xmin:xmax) = regionColourMask;
-        
+        switch(variant)
+            case 1                         % Commited variant
+                % Consider the CC's in the window as
+                % candidates and compute their BBs
+                % Apply geometrical constraints on AR (beware, this could be too
+                % strict). Remove it if the results are bad.
+                
+                % Before: filter very small CC's (remember that TP may still be
+                % empty (no hole filling applied w/o morphology))
+                regionColourMask = bwareaopen(regionColourMask, minArea, 4);
+                [CC, CC_stats] = computeCC_regionProps(regionColourMask);
+                [regionColourMask, tempWindowCandidate, ~] =...
+                    applyGeometricalConstraints(regionColourMask, CC, CC_stats,...
+                    geometricFeatures, params, 1);
+                outputMask(ymin:ymax ,xmin:xmax) = regionColourMask;
+                
+                
+            case 2 % just testing==> reconstruct by painting the watershed
+                % region as white (may be a disaster or a pseudo-success)
+                outputMask(CC_stats_WS(i).PixelIdxList) = 1;
+                tempMask = outputMask(ymin:ymax ,xmin:xmax);
+                [CC, CC_stats] = computeCC_regionProps(tempMask);
+                [tempMask, tempWindowCandidate, ~] =...
+                    applyGeometricalConstraints(regionColourMask, CC, CC_stats,...
+                    geometricFeatures, params, 1);
+                outputMask(ymin:ymax ,xmin:xmax) = tempMask;
+            case 3
+                % The above but with morphology applied before
+                % region as white (may be a disaster or a pseudo-success)
+                outputMask(CC_stats_WS(i).PixelIdxList) = 1;
+                tempMask = outputMask(ymin:ymax ,xmin:xmax);
+                [CC, CC_stats] = computeCC_regionProps(tempMask);
+                [tempMask, tempWindowCandidate, ~] =...
+                    applyGeometricalConstraints(regionColourMask, CC, CC_stats,...
+                    geometricFeatures, params, 1);
+                outputMask(ymin:ymax ,xmin:xmax) = tempMask;
+                
+                
+            otherwise
+        end
         % ATTENTION: correct BB x and y coordinates! computed with respect
         % to the origin of the region not the whole image! Change 'x' and
         % 'y' fields for 'topLeftX+tmpX' and 'topLeftY+tmpY'
@@ -108,8 +140,20 @@ for i = 1: WS_numRegions
         % fprintf('Region num. %d discarded (overlap < thr.)\n', i); %
         % DEBUG ONLY (line above)
         % For pixel-based evaluation
-        discarded = discarded +1;
-        outputMask(ymin:ymax ,xmin:xmax) = regionColourMask;
+        switch (variant) % Submitted
+            case 1
+                discarded = discarded +1;
+                outputMask(ymin:ymax ,xmin:xmax) = regionColourMask;
+            case 2      % just trying
+                % If the region is under the overlap thr. put it all too
+                % black (may be too restrictive but it is just a test)
+                discarded = discarded +1;
+                outputMask(ymin:ymax, xmin:xmax) = 0;
+            case 3
+                discarded = discarded +1;
+                outputMask(ymin:ymax, xmin:xmax) = 0;
+            otherwise
+        end
         
     end
     

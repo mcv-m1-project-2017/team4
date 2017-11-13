@@ -16,6 +16,8 @@ conn = 8;                           % Watershed region connectivity (8 default)
 medianRGB = medfilt3(RGB_image);
 HSV = rgb2hsv(medianRGB);
 V_channel = HSV(:,:,3);
+
+% Add low pass filtering to avoid too many edge 'artifacts' due to noise
 if (strcmpi(gradient, 'sobel'))
     hy = fspecial('sobel');
     hx = hy';

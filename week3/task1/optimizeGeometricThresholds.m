@@ -7,13 +7,14 @@ close all;
 clear;
 
 addpath(genpath('../../../'));
-dataset = 'validation';%'train';%'validation';%'train';%'validation';%'train';%'validation';%'train';%'validation'       
+dataset = 'train'; %'validation';%'train';%'validation';%'train';%'validation';%'train';%'validation';%'train';%'validation'       
 % Run 'train' over the set of defined parameters.
 % Otherwise run 'validation' for top 10 parameters
 % of last train. Define the top X run through
 % validation.
-test_num = 7;
-method_num = 1;
+test_num = 1;
+method_num = 6;
+week_num = 5;
 top = 10;
 
 % Select whether to optimize for pixel/window-based F-score
@@ -30,7 +31,7 @@ if (strcmp(dataset, 'train'))
     %  Compute nº of combinations and define parameters values
     % load('GeometricFeatures_train.mat')
     
-    valuesPerParameter = [10];
+    valuesPerParameter = [5,5,3];
     %tweakedParameters = 3;
     %numCombinations = valuesPerParameter^(tweakedParameters);
     numCombinations = prod(valuesPerParameter);
@@ -80,9 +81,9 @@ if (strcmp(dataset, 'train'))
     % -------------
 %         testFR_tri = linspace(4, 5, valuesPerParameter(3));%[4, 4.25, 5];
 %         testFR_circ = linspace(4, 5, valuesPerParameter(1));%[4.5, 4.75, 5];
-        testFR_rect = linspace(4, 5, valuesPerParameter(1));%[4.5, 4.75, 5];
+%         testFR_rect = linspace(4, 5, valuesPerParameter(1));%[4.5, 4.75, 5];
 %     FR_circ = testFR_circ;
-FR_rect = testFR_rect;
+% FR_rect = testFR_rect;
     % Testing values (NDGRID)
     %     [FR_triangle, FR_circ, FR_rect] = meshgrid(testFR_tri, testFR_circ, testFR_rect);
     %
@@ -98,7 +99,14 @@ FR_rect = testFR_rect;
     %     FR_triangle = testFR_tri;
     FR_circ = ones(numCombinations,1) * 4.5;
 %     %     FR_circ = testFR_circ;
-%     FR_rect = ones(numCombinations,1) * 4.5;
+    FR_rect = ones(numCombinations,1) * 4.5;
+    
+    %% WATERSHED
+    overlapThr = linspace(0.1, 0.5, 5);
+    minAreaThr = linspace(10, 50, 5);
+    variantThr = linspace(1,3,3);
+    
+    [WS_p1, WS_p2, WS_p3] = meshgrid(overlapThr, minAreaThr, variantThr);
     
     for p = 1:numCombinations
         params = [vecMinArea(p), vecMaxArea(p), vecScaleStd_AR(p),...
@@ -107,20 +115,22 @@ FR_rect = testFR_rect;
         %             FR_triangle(p), FR_circ(p), FR_rect(p)];
         [results_mtx_train_pixel(p,:), results_mtx_train_window(p,:)] =...
             generateAndEvaluate_BBMasks('debug', geometricFeatures,...
-            params, dataset, method_num);
+            params, dataset, method_num, week_num, WS_p1(p), WS_p2(p), WS_p3(p));
         % res_params_values(p,:) = [vecMinArea(p), vecMaxArea(p), vecStdAR(p)];
         res_params_values(p,:) = params;
     end
     
     % In both cases (optimizing for pixel or window, save both)
     if (fscorePixel)
-        filename = strcat('res_geometricConstraints_train_pixel_v',...
-            num2str(test_num),'_m', num2str(method_num), '.mat');
+        filename = strcat('extraTesting/', 'res_geometricConstraints_train_pixel_v',...
+            num2str(test_num),'_m', num2str(method_num),...
+            '_w', num2str(week_num), '.mat');
         save(filename, 'results_mtx_train_pixel',...
             'res_params_values', 'results_mtx_train_window');
     else
-        filename = strcat('res_geometricConstraints_train_window_v',...
-            num2str(test_num),'_m', num2str(method_num), '.mat');
+        filename = strcat('extraTesting/', 'res_geometricConstraints_train_window_v',...
+            num2str(test_num),'_m', num2str(method_num),...
+            '_w', num2str(week_num), '.mat');
         save(filename, 'results_mtx_train_window',...
             'res_params_values', 'results_mtx_train_pixel');
     end
@@ -129,13 +139,15 @@ elseif (strcmp(dataset, 'validation')) % validation
     % Load results from last train (both, as we want to compare them when
     % optimizing for one or the other; 'pixel' or 'window')
     if (fscorePixel)
-        filename = strcat('res_geometricConstraints_train_pixel_v',...
-            num2str(test_num),'_m', num2str(method_num), '.mat');
+        filename = strcat('extraTesting/', 'res_geometricConstraints_train_pixel_v',...
+            num2str(test_num),'_m', num2str(method_num),...
+            '_w', num2str(week_num), '.mat');
         load(filename, 'results_mtx_train_pixel', 'res_params_values',...
             'results_mtx_train_window');
     else
-        filename = strcat('res_geometricConstraints_train_window_v',...
-            num2str(test_num),'_m', num2str(method_num), '.mat');
+        filename = strcat('extraTesting/', 'res_geometricConstraints_train_window_v',...
+            num2str(test_num),'_m', num2str(method_num),...
+            '_w', num2str(week_num),'.mat');
         load(filename, 'results_mtx_train_window', 'res_params_values',...
             'results_mtx_train_pixel');
     end
@@ -166,14 +178,16 @@ elseif (strcmp(dataset, 'validation')) % validation
             params, dataset, method_num);
     end
     if (fscorePixel)
-        filename = strcat('res_geometricConstraints_validation_pixel_v',...
-            num2str(test_num),'_m', num2str(method_num), '.mat');
+        filename = strcat('extraTesting/', 'res_geometricConstraints_validation_pixel_v',...
+            num2str(test_num),'_m', num2str(method_num),...
+            '_w', num2str(week_num),'.mat');
         save(filename,...
             'results_mtx_validation_pixel', 'res_params_values_val',...
             'results_mtx_validation_window');
     else
-        filename = strcat('res_geometricConstraints_validation_window_v',...
-            num2str(test_num),'_m', num2str(method_num), '.mat');
+        filename = strcat('extraTesting/', 'res_geometricConstraints_validation_window_v',...
+            num2str(test_num),'_m', num2str(method_num),...
+            '_w', num2str(week_num),'.mat');
         save(filename,...
             'results_mtx_validation_window', 'res_params_values_val',...
             'results_mtx_validation_pixel');

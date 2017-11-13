@@ -55,7 +55,7 @@ switch evaluationType
         fprintf('Evaluating mask...\n');
         for i = 1:size(resultFiles,1)
             % Load mask and display progress
-            fprintf('%d\t of \t%d (%.1fz%%)\n', i, size(resultFiles,1), 100*(i/size(resultFiles,1)));
+            fprintf('%d\t of \t%d (%.1f%%)\n', i, size(resultFiles,1), 100*(i/size(resultFiles,1)));
             mask = imread(strcat(resultsFolder, '/', resultFiles(i).name));
 
             % Load gt mask
